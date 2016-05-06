@@ -1,0 +1,72 @@
+\section{Statements}
+
+    \subsection{Expressions}
+        An expression statement consists of an expression followed by a semicolon. Expressions in expression statements will be evaluated, and its value calculated.
+
+        \begin{lstlisting}
+a int = 500;
+s char = 'a';
+2 + 4 - 3;          /* Not used, thrown away */
+        \end{lstlisting}
+
+
+    \subsection{Declarations}
+        A declaration specifies a variable's name and type, in that order. Values may also be initialized in the declaration.
+
+        \begin{lstlisting}
+x int;
+y char = '4';
+        \end{lstlisting}
+
+    \subsection{Control Flow}
+
+        \subsubsection{\texttt{if, elif, else}}
+            An \texttt{if} statement causes a block (encapsulated by \texttt{\{ and\}}) to be entered if the specified condition evaluates to true.
+
+            \vspace{5mm}
+            \noindent An \texttt{elif} allows an alternate condition to be specified.
+            
+            \vspace{5mm}
+            \noindent An \texttt{else} is entered if the `if' and `elif's are not entered. 
+           
+           \vspace{5mm}
+            \noindent A boolean expression encapsulated within parentheses is required for every \texttt{if} and \texttt{elif}. \texttt{Elif} and \texttt{else} belong to the first preceeding \texttt{if} statement. 
+
+
+            \begin{lstlisting}
+x int = 1;
+if (x == 1)
+{
+    print("x==1!");
+}
+
+elif (x == 2)
+{
+    print("x==2!");
+}
+
+else 
+{
+    print("fail");
+}
+            \end{lstlisting}
+
+        \subsubsection{Looping with \texttt{for}}
+            Democritus eliminates the \texttt{while} structure, replacing it instead with a modified \texttt{for} loop. \texttt{For} can be used to iterate by providing an initialization, termination condition, and update:
+            \begin{lstlisting}
+for(i int = 0; i < 10; i++)
+{
+    /* Some code here */
+}
+            \end{lstlisting}
+
+            It can also be used as a while loop providing only one condition:
+
+            \begin{lstlisting}
+for(x < 10)
+{
+    /* Some code here */
+}
+            \end{lstlisting}
+
+

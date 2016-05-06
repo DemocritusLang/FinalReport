@@ -1,0 +1,159 @@
+\section{Expressions and Operators}
+	An expression consists of a combination of any of the following:
+    \begin{itemize}
+        \item a literal value
+        \item a variable name
+        \item a binary operation
+        \item a unary operation
+        \item a C-style array access operation
+    \end{itemize}
+    \subsection{Assignment}
+		Assignment is done with \texttt{=}. As mentioned above, variables and declared with the \texttt{varname vartype} syntax. Variables can be assigned to a single value or to the result of an expression. 
+		
+		\begin{lstlisting}
+x float = 4.0;
+y int = 5/2 + 1; 	/* y = 3 */
+		\end{lstlisting}
+		
+		\noindent Array assignment is done with Java-like syntax. Note that the size of the array must be specified in the declaration. 
+		
+		\begin{lstlisting}
+x int[5] = {0,1,2,3,4};
+		\end{lstlisting}
+		
+		\noindent Pointer types are denoted with a \texttt{*} which must be attached to the primitive type that they reference.
+		
+		\begin{lstlisting}
+x int  = 4;   /* x = 4  */
+y int* = &x;  /* *y = 4 */
+		\end{lstlisting}
+		
+	\subsection{Arithmetic Operations}
+		Democritus supports all the arithmetic operations standard to most general-purpose languages like C and Java. Note that casting is not built into the language; this functionality will instead be implemented through the standard library.
+		
+		\subsubsection{Addition and Subtraction}
+			Addition works with the \texttt{+} character, behaving as expected.
+			\begin{lstlisting}
+x int = 4;
+y int = 2;
+x = x + y; 	/* x = 6  */
+y = y - x 	/* y = -4 */
+			\end{lstlisting}
+						
+		\subsubsection{Multiplication}
+			Multiplication follows the same rules as well. 
+			\begin{lstlisting}
+x int = 4;
+y int = 2;
+x = x * y + y; /* x = 10 */
+			\end{lstlisting}
+			
+
+		\subsubsection{Division}
+			Democritus will default to integer division, unless both types provided are floats. 
+			\begin{lstlisting}
+x int = 5;
+y int = 2;
+x = x / y; 	/* x = 2  */
+
+a float = 4.0;
+b float = 2.0;
+a = b / a; 	/* a = 2.0 approximately */
+			\end{lstlisting}
+
+        \subsubsection{Modulus}
+            The remainder of an integer division operation can be computed via the modulo \texttt{\%} operator.
+            \begin{lstlisting}
+x int = 8;
+y int = 5;
+x = x%y; 	/* x = 3  */
+			\end{lstlisting}
+	
+		\subsubsection{Bit Shifting}
+			Integers can be bit-shifted with \texttt{\textgreater\textgreater} and \texttt{\textless\textless}.
+			\begin{lstlisting}
+x int = 9;
+y int = x>>1;  /* y = 4  */
+x = y<<2; 	   /* x = 16 */
+			\end{lstlisting}
+		
+	\subsection{Boolean Expressions}
+		Democritus features all of the standard logical operators, following Java-style syntax. Each expression will return a boolean value of true or false.
+
+        \subsubsection{Equality}
+            Equality is tested with the \texttt{==} operator. Inequality is tested with \texttt{!=}. 
+            \begin{lstlisting}
+x int = 8;
+y int = 8;
+z boolean = (x == y);		/* z = true  */
+z = (x == (y + 1));			/* z = false */
+z = (x != (y + 1));			/* z = true  */
+			\end{lstlisting}
+			
+		\subsubsection{Negation}
+			Negation is done with \texttt{!}, a unary operation.
+
+        \subsubsection{Comparison}
+            Democritus also features the \texttt{\textless}, \texttt{\textless =}, \texttt{\textgreater}, and \texttt{\textgreater =} operators.  
+            
+            \begin{lstlisting}
+x int = 9;
+y int = 8;
+z int = 8;
+
+x>y;    /* true */
+y>=z;   /* true */
+z<x;    /* true */
+            \end{lstlisting}
+
+        \subsubsection{Chained Expressions}
+            Boolean expressions can be chained with \texttt{\&\&} and \texttt{\textbar\textbar}, representing \texttt{and} and \texttt{or}, respectively. These operators have lower precedence than any of the other boolean operators described above. The \texttt{and} operator has a higher precedence than \texttt{or}.
+
+            \begin{lstlisting}
+x int = 9;
+y int = 8;
+z int = 8;
+
+(x>y && y<x);			/* false */
+(x>y || y<x);			/* true */
+(x>y && y<x || z==y)	/* true */
+            \end{lstlisting}
+            
+	\subsection{Pointers and References}
+		Pointers and dereferencing operations utilize the same syntax as C. The unary operator \texttt{\&} gives a variables address in memory, and the operator \texttt{*} dereferences a pointer. See the assignment subsection for usage.
+		
+	\subsection{Array access}
+		Array access is done with \texttt{[\textit{i}]} where \textit{i} is the index being accessed. 
+		
+		\begin{lstlisting}
+x int[5] = {0,1,2,3,4};
+y int = x[2];  			/* y = 2 */
+		\end{lstlisting}
+    \subsection{Operator Precedence and Associativity}
+        \begin{tabular}{ | l | l | l | l | }\hline
+	Precedence  & Operator      & Description & Associativity \\ \hline
+	1 & \texttt{()} & Parenthesis        & Left-to-right \\ \hline
+    2 & \texttt{()} & Function call      & Left-to-right \\
+      & \texttt{\{\}} & Array creation  s   &               \\ 
+      & \texttt{[]} & Array subscript    &               \\ \hline
+    3 & \texttt{*}  & Dereference        & Right-to-left \\ 
+      & \texttt{\&} & Address-of         &               \\
+      & \texttt{!}  & Negation           &               \\
+      & \texttt{-}  & Unary minus        &               \\ \hline
+    4 & \texttt{*}  & Multiplication     & Left-to-right \\ 
+      & \texttt{/}  & Division           &               \\
+      & \texttt{\%} & Modulo             &               \\ \hline
+    5 & \texttt{+}  & Addition           & Left-to-right \\
+      & \texttt{-}  & Subtraction        &               \\ \hline
+    6 & \texttt{\textgreater \textgreater} & Bitwise shift shift right & Left-to-right \\
+      & \texttt{\textless \textless} & Bitwise shift left & \\ \hline
+    7 & \texttt{\textgreater \textgreater} = & For relational $>$ and $\geq$ respectively & Left-to-right \\
+      & \texttt{\textless \textless =}& For relational $<$ and $\leq$ respectively & \\ \hline
+    8 & \texttt{==} \texttt{!=} & For relational $=$ and $\neq$ respectively & Left-to-right \\\hline
+    9 & \texttt{\&\&} & Logical \texttt{and} & Left-to-right \\ \hline
+    10 & \texttt{\textbar \textbar}&  Logical \texttt{or} & Left-to-right \\ \hline
+    11 & \texttt{=} & Assignment & Right-to-left \\ \hline
+
+\end{tabular}
+
+

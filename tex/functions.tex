@@ -1,0 +1,46 @@
+\section{Functions}
+    \subsection{Overview}
+        Functions can be defined in Democritus to return one or no data type.  Functions are evaluated via eager evaluation and the function implementation must directly follow the function header. The syntax is reminiscent of Scala, although Democritus doesn't support implied returns.
+        \vspace{5mm}
+        \noindent A function appears in the form:
+        
+        \begin{lstlisting}
+function [function name]([formal_arg type, ... ]) type {
+    [function implementation]
+    return [variable of return type]
+}
+        \end{lstlisting}
+
+        \noindent \textbf{Note}: all functions need \texttt{return} statements at the end (no falling off the end). A void \texttt{return} is simply a return with nothing following it.
+
+        \vspace{5mm}
+        \noindent Functions may be recursive and call themselves:
+
+        \begin{lstlisting}
+function recursive_func(i int) void {
+    if (i < 0) {
+        return;
+    } else {
+        print “hi”;
+        recursive_fun(i-1);
+    }
+}
+        \end{lstlisting}
+
+
+        \noindent Functions may be called within other functions:
+        \begin{lstlisting}
+
+function main() void{
+    recursive_func(3);
+    return;
+}
+        \end{lstlisting}
+
+
+    \subsection{Built-in Functions}
+        A handful of functions are natively built into Democritus for user flexibility and ease of usage. There are:
+        \begin{itemize}
+            \item print(s string) takes in a string (standard library functions will convert from other data types to strings)
+            \item thread(f function, [arg1 type, arg2 type, ...]) takes in function and function args
+        \end{itemize}

@@ -1,0 +1,50 @@
+\section{Concurrency}
+	\subsection{Overview}
+		Democritus intends to cater to modern software engineering use cases. Developments in the field are steering us more and more towards highly concurrent programming as the scale at which software is used trends upward.
+
+		\vspace{5mm}
+		\noindent
+		With this in mind, Democritus adds support for the \texttt{atomic} keyword, used as a modifier at the declaration step. The keyword can be used both in an inline declaration and when declaring a function's types. We also wrap the \texttt{$pthread_t$} datatype and related functions.
+
+	\subsection{Atomic Inline Declarations}
+		Under the hood, declaring a variable with the \texttt{atomic} keyword embeds a locking structure into the type, as well as exposing the \texttt{lock()} and \texttt{unlock()} functions. If the keyword is used with a standard data type, the compiler replaces the normal version of that type with a version that includes the lock and the functions described above.
+
+		\begin{lstlisting}
+	}
+		x int;
+		x.lock(); x.unlock();	/* undefined! */
+
+		y atomic int;
+		y.lock(); y.unlock();	/* defined! */
+}
+		\end{lstlisting}
+
+	\subsection{Atomic Parameter Declarations}
+		A function whose formal parameters are \texttt{atomic} will throw a compile-time error if a non-atomic type is passed in. The idea is to force the programmer to document which functions are safe to use in a multi-threaded context and which are not.
+
+		\begin{lstlisting}
+	}
+	
+function [function name]([formal_arg atomic type]) atomic type {
+	formal_arg.lock();
+	/* do something */
+	formal_arg.unlock();
+	return formaL_arg
+}
+		\end{lstlisting}
+
+		Naturally, rather than calling \texttt{lock()} and \texttt{unlock()} manually, the programmer can implement atomic operations.
+
+	\subsection{Spawning Threads}
+		To spawn threads, Democritus uses a wrapper around the C-language \texttt{pthread} family of functions.
+
+		The \texttt{$thread_t$} data type wraps \texttt{$pthread_t$}.
+
+		To spawn a thread, the thread function takes a variable number of arguments where the first argument is a function and the remaining optional arguments are the arguments for that function. It returns an error code.
+
+		The \texttt{detach} boolean determines whether or not the parent thread will be able to join on the thread or not.
+		\begin{lstlisting}
+        {	
+		thread(f function, boolean detach, [arg1 type, arg2 type, ...]) int;
+	}
+		\end{lstlisting}
