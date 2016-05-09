@@ -1,2 +1,228 @@
 \chapter{Language Tutorial}
 
+Democritus is a strongly-typed, imperative language with standard methods for conditional blocks, iteration, variable assignment, and expression evaluation. In this chapter, we will cover environment configuration as well as utilizing Democritus' basic and more advanced features.
+
+\section{Setup and Installation}
+
+	To set up the Democritus compiler, OCaml and LLVM must be installed. Testing and development was done in both native Ubuntu 15.04 and Ubuntu 14.04 running on a virtual machine.
+
+	\begin{lstlisting}
+sudo apt-get install m4 clang-3.7 clang-3.7-doc libclang-common-3.7-dev libclang-3.7-dev libclang1-3.7 libclang1-3.7-dbg libllvm-3.7-ocaml-dev libllvm3.7 libllvm3.7-dbg lldb-3.7 llvm-3.7 llvm-3.7-dev llvm-3.7-doc llvm-3.7-examples llvm-3.7-runtime clang-modernize-3.7 clang-format-3.7 python-clang-3.7 lldb-3.7-dev liblldb-3.7-dbg opam llvm-runtime
+	\end{lstlisting}
+
+	\medskip \noindent For Ubuntu 15.04, we need the matching LLVM 3.6 OCaml Library.
+
+	\begin{lstlisting}
+sudo apt-get install -y ocaml m4 llvm opam
+opam init
+opam install llvm.3.6 ocamlfind
+eval `opam config env`
+\end{lstlisting}
+
+	\medskip \noindent For Ubuntu 14.04:
+
+	\begin{lstlisting}
+sudo apt-get install m4 llvm software-properties-common
+
+sudo add-apt-repository --yes ppa:avsm/ppa
+sudo apt-get update -qq
+sudo apt-get install -y opam
+opam init
+
+eval `opam config env`
+
+opam install llvm.3.4 ocamlfind
+	\end{lstlisting}
+
+	\medskip \noindent After setting up the environment, clone the git repository into your desired installation directory:
+
+	\begin{lstlisting}
+git clone https://github.com/DemocritusLang/Democritus.git
+	\end{lstlisting}
+
+
+\section{Compiling Your Code}
+	
+	To build the compiler, \texttt{cd} into the Democritus repository, and run \texttt{make}.
+
+	\medskip \noindent
+	If building fails, try running \texttt{eval `opam config env`}, which should update your local environment use OPAM packages and compilers. It's recommended to add the above command to your shell's configuration file if you plan on developing with Democritus.
+
+	\medskip \noindent
+	To compile code, simply run
+	\begin{lstlisting}
+./Democritus < filename.demo > outfile.lli
+	\end{lstlisting}
+
+	\noindent To run compiled code, call \texttt{lli} on the output:
+	\begin{lstlisting}
+lli outfile.lli
+	\end{lstlisting}
+
+\section{Writing Code}
+
+	Code can be written in any text file, but Democritus source files should have the \texttt{.demo} extension by convention. Democritus programs consist of global function, struct, and variable declarations. Only the code inside main() will be exectued at runtime. At this time, linking is not included in the Democritus compiler; all code should be written and compiled from a single \texttt{.demo} source file.
+
+\section{Getting Started}
+
+	\subsection{Declarations}
+	Functions are declared with the \texttt{<function func\_name(a type, b type) return\_type>} syntax. Variables are declared with the \texttt{<let var\_name var\_type;>} syntax. Statements are terminated with the semicolon \texttt{;}. Note that all variable declarations must happen before statements (including assignments) in any given function.
+
+	\begin{lstlisting}
+function triangle_area(base int, height int) int{
+	return base*height/2;
+}
+	\end{lstlisting}
+
+	\subsection{Types}
+
+		\subsubsection{Primitives}
+		Primitive types in Democritus include booleans, integers, and strings. The void type is also used for functions.
+
+		\begin{lstlisting}
+function main() int{
+	let s string;
+	let foo int;
+	let bar bool;
+
+	bar = true;
+	s = "Hello, World!"
+	foo = 55;
+	bar = false;
+
+	return 0;
+}
+		\end{lstlisting}
+
+
+	 	\subsubsection{Structs}
+	 	Structs are declared at the global level with the \texttt{<struct struct\_type \{ named fields \}>} syntax. 
+
+	 	\begin{lstlisting}
+struct Person{
+	let education string;
+	let name string;
+	let age int;
+	let working bool;
+}
+
+
+function main() int{
+	let p Struct person;
+	p.name = "Joe"
+	p.education = "Bachelor's";
+	p.age = 25;
+	p.working = false;
+
+	return 0;
+}
+	 	\end{lstlisting}
+
+
+	\iffalse
+	\subsection{Modifiers}
+		Information about atomic and pointers here.
+	\fi
+
+ 	\subsection{Operators}
+		
+		Democritus includes the `standard' set of operators, defined as follows:
+
+		\subsubsection{Binary Operators:}
+		\begin{itemize}
+			\item artithmetic: \texttt{+, -, *, /}
+			\item logical:\verb^ ==, !=, <, <=, >, >=, && (and), || (or) ^ 
+		\end{itemize}
+
+		\subsubsection{Unary Operators:}
+		\begin{itemize}
+			\item artihmetic: \texttt{-}
+			\item logical: \texttt{! (not)}
+		\end{itemize}
+
+		\noindent
+		Logical expressions return a boolean value.
+
+		\medskip \noindent
+		The expressions on each side of a binary operation must be of the same type. The \verb^ &&, ||,^ and \verb^! ^ operators must be called on boolean expressions.
+
+
+\section{Control Flow}
+	As an imperative language, Democritus executes statements sequentially from the top of any given function to the bottom. Branching and iteration is done similarly to many other imperative languages.
+
+	\subsection{Conditional Branching}
+		Conditional branching is done with:
+
+		\begin{lstlisting}
+if(boolean expression) 
+{ 
+	/* do something here */
+}
+
+else
+{
+	/* do alternative here */
+}
+		\end{lstlisting}
+	
+		\medskip \noindent
+		Here is an example of conditional branching in Democritus:
+
+		\begin{lstlisting}
+struct Person{
+	let education string;
+	let name string;
+	let age int;
+	let working bool;
+}
+
+
+function main() int{
+	let p Struct person;
+	p.name = "Joe"
+	p.education = "Bachelor's";
+	p.age = 25;
+	p.working = false;
+
+	if(p.working){
+		print(p.name);
+		print(" works.\n");
+	}else{
+		print(p.name);
+		print(" is looking for work.\n");
+	}
+
+	return 0;
+}
+		\end{lstlisting}
+
+	\subsection{Loops and Iteration}
+		Iteration can be done either via a \texttt{while} or \texttt{for} loop. A \texttt{while(e1)} loop requires \texttt{e1} to be boolean conditional statement. A \texttt{for(e1; e2; e3)} loop requires three expressions; \texttt{e1} is called prior to entering the loop, \texttt{e2} is a boolean conditional statement for the loop, and \texttt{e3} is called after each iteration. Both \texttt{e1} and \texttt{e3} may be empty expressions. Each of the following functions should print 42.
+
+		\begin{lstlisting}
+function main() int{
+	let i int;
+	i = 0;
+	while(i<42){
+		i = i+1;
+	}
+	print_int(i)
+	return 0;
+}
+		\end{lstlisting}
+
+		\begin{lstlisting}
+function main() int{
+	let i int;
+	for(i = 0; i<42; i++){
+		i = i+1;
+	}
+	print_int(i)
+	return 0;
+}
+		\end{lstlisting}
+
+
+
+\section{Multithreading and Atomicity}
+

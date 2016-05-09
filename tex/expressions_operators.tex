@@ -5,10 +5,12 @@
         \item a variable name
         \item a binary operation
         \item a unary operation
-        \item a C-style array access operation
+        \item an array access operation
+        \item a struct access 
     \end{itemize}
-    \subsection{Assignment}
-		Assignment is done with \texttt{=}. As mentioned above, variables and declared with the \texttt{varname vartype} syntax. Variables can be assigned to a single value or to the result of an expression. 
+    \subsection{Declaration and Assignment}
+    	Democritus requires all named variables to be declared with its type at the top of each function. Named variables are declared with the \texttt{let [ID] type} syntax. Assignment to these variables may be done with \texttt{=}.
+
 		
 		\begin{lstlisting}
 x float = 4.0;

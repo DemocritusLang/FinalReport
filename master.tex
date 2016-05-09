@@ -5,6 +5,7 @@
 \usepackage{subfiles}
 \usepackage{fullpage}
 \usepackage{listings}
+\usepackage{titlesec}
 \usepackage{color}
 \setcounter{secnumdepth}{1} % only chapter and sections will be numbered
 \setcounter{tocdepth}{3}    % entries down to \subsubsections in the TOC
@@ -19,13 +20,17 @@
     tabsize=2
 }
 
+\definecolor{darkblue}{rgb}{0.089,0.21,0.363}
+\titleformat{\chapter}
+  {\LARGE\LARGE\bfseries\color{darkblue}}{{\LARGE\thechapter.\ }}{6pt}{}
+
 \author{
   Amy Xu \\ \small{xx2152} \\ \small{Project Manager} 
   \and Emily Pakulski \\ \small{enp2111} \\ \small{Language Guru} 
   \and Amarto Rajaram \\ \small{aar2160}  \\ \small{System Arhictect} 
   \and Kyle Lee\\ \small{kpl2111} \\ \small{Tester}
 }
-\title{Democritus Language Reference Manual}
+\title{Democritus Language Final Report}
 
 \begin{document}
 	\maketitle
