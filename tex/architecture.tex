@@ -1,9 +1,13 @@
 \chapter{Architecture Overview}
+	Democritus' compiler is built off of Professor Stephen Edwards' \texttt{MicroC} compiler. 
 
 \section{Compiler Overview}
+  Several files make up the source code of the compiler. 
 	\subsection{The Scanner}
+    The scanner is simply a text scanner that parses text into various tokens, to then be interpreted by the parser. The regular expressions used by the scanner were listed above in the language reference chapter. 
 
 	\subsection{The Parser}
+    The parser is a token scanner that converts the tokens read into a valid abstract syntax tree of the program. If the program follows valid syntax, it will be parsed accordlingly. Otherwise, compilation of code will yield a parse error. The structure of the program is as follows:
 
 	\subsection{The Semantic Analyzer}
 

@@ -61,7 +61,7 @@ lli outfile.lli
 
 \section{Writing Code}
 
-	Code can be written in any text file, but Democritus source files should have the \texttt{.demo} extension by convention. Democritus programs consist of global function, struct, and variable declarations. Only the code inside main() will be exectued at runtime. At this time, linking is not included in the Democritus compiler; all code should be written and compiled from a single \texttt{.demo} source file.
+	Code can be written in any text file, but Democritus source files should have the \texttt{.dem} extension by convention. Democritus programs consist of global function, struct, and variable declarations. Only the code inside main() will be exectued at runtime. At this time, linking is not included in the Democritus compiler; all code should be written and compiled from a single \texttt{.demo} source file.
 
 \section{Getting Started}
 
@@ -96,23 +96,32 @@ function main() int{
 
 
 	 	\subsubsection{Structs}
-	 	Structs are declared at the global level with the \texttt{<struct struct\_type \{ named fields \}>} syntax. 
+	 	Structs are declared at the global level with the \texttt{<struct struct\_type \{ named fields \}>} syntax. Struct declarations may also be nested.
 
 	 	\begin{lstlisting}
 struct Person{
-	let education string;
 	let name string;
 	let age int;
-	let working bool;
+	let info struct Info;
+}
+
+struct Info{
+	let education string;
+	let salary int;
 }
 
 
 function main() int{
-	let p Struct person;
-	p.name = "Joe"
-	p.education = "Bachelor's";
-	p.age = 25;
-	p.working = false;
+	let p struct Person;
+
+	p.name = "Joe";
+	p.age = 30;
+	p.info.education = "Bachelor's";
+	p.info.salary = 99999;
+
+	print(p.name);
+	print(" earns: ");
+	print_int(p.info.salary);
 
 	return 0;
 }
@@ -225,4 +234,62 @@ function main() int{
 
 
 \section{Multithreading and Atomicity}
+	Democritus supports threading with the \texttt{thread()} function call, which then calls the underlying \texttt{pthread} function in C. Any defined function can be called with multiple threads. The calling syntax is as follows:
+	\begin{lstlisting}
+thread("functionname", <comma separated args>, #threads);
+	\end{lstlisting}
 
+	\noindent
+	Multithreaded functions must take a \texttt{starvoid} type as input and return a starvoid to conform with C's calling convention. An example of a multithreaded program:
+
+	\begin{lstlisting}
+function multiprint(noop starvoid) starvoid{
+	let x starvoid;
+	print("Hello, World!\n");
+	return x;
+}
+
+function main() int{
+	thread("multiprint", 0, 6); /* "Hello, World!" will be printed six times. */
+	return 0;
+}
+
+	\end{lstlisting}
+
+
+
+\section{Miscellaneous}
+	Besides threading, a couple of other functions from C have been bound to Democritus.
+
+	\subsection{Malloc}
+		\texttt{malloc(size)} may be called, returning a pointer to a newly heap-allocated block of $size$ bytes. These pointers may be bound to strings, which themselves are pointers to string literals. An example utilizing malloc will be included with file I/O.
+
+	\subsection{File I/O}
+		Files may be opened with \texttt{open()}. This call returns an integer, which may be then bound as a file descriptor. C functions such as \texttt{write()}, \texttt{read()}, or \texttt{lseek()} may then be called on the file descriptor. 
+
+		\begin{itemize}
+			\item \texttt{open(filename, fd, fd2)}: opens a file. \texttt{filename} is a string referring to a file to be opened. \texttt{Fd} and \texttt{fd2} are file descriptors used for \texttt{open}.
+			\item \texttt{write(fd, text, length)}: writes to a file. \texttt{fd} refers to the file descriptor of an open file. \texttt{text} is a string representing text to be written. \texttt{length} is an integer specifying the number of bytes to be written.
+			\item \texttt{read(fd, buf, length)}: reads from a file. \texttt{fd} refers to the file descriptor of an open file. \texttt{buf} is a pointer to malloc'd or allocated space. \texttt{length} is an integer representing amount of data to be read. Buffers should be \texttt{malloc}'d before reading. 
+			\item \texttt{lseek(fd, offset, whence)}: sets a file descriptors cursor position. \texttt{fd} is the file descriptor to an open file. \texttt{offset} is an integer describing how many bytes the cursor should be offset by, and \texttt{whence} is an integer describing how \texttt{offset} should be applied: as an absolute location, relative location to the current cursor, or relative location to the end of the file.
+		\end{itemize}
+
+		\noindent
+		For more detailed information on these calls, run \texttt{man function\_name}.
+
+		\begin{lstlisting}
+function main() int{
+
+  let fd int;
+  let malloced string;
+  fd = open("tests/HELLOOOOOO.txt", 66, 384); 	/* Open this file */
+  write(fd, "hellooo!\n", 9); 									/* Write these 9 bytes */
+  malloced = malloc(10); 			/* Allocate space for the data and null terminator */
+  lseek(fd, 0, 0);						/* Jump to the front of the file */
+  read(fd, malloced, 10);			/* Read the data we just wrote into the buffer */
+  print(malloced);						/* Prints "hellooo!\n" */
+  return 0;
+}
+		\end{lstlisting}
+
+	\subsection{Sockets API}
