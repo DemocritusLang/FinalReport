@@ -2,7 +2,16 @@
 	Democritus' compiler is built off of Professor Stephen Edwards' \texttt{MicroC} compiler. 
 
 \section{Compiler Overview}
-  Several files make up the source code of the compiler. 
+  Several files make up the source code of the compiler. These include:
+  \begin{itemize}
+    \item \texttt{scanner.mll}: the OCamllex scanner.     
+    \item \texttt{ast.ml}: the abstract syntax tree, summarizing the overall structure of a Democritus program. 
+    \item \texttt{parser.mly}: the Ocamlyacc parser. Tokens from the scanner are parsed into the abstract syntax tree in the parser.
+    \item \texttt{semant.ml}: the semantic analyzer.
+    \item \texttt{codegen.ml}: the LLVM IR code generator.
+    \item \texttt{democritus.ml}: the overarching OCaml program that calls the four main steps of the compiler.
+    \item \texttt{bindings.c}: a C file that provides key underlying C functionality, such as for threads, which is compiled to LLVM bytecode. 
+  \end{itemize}
 	\subsection{The Scanner}
     The scanner is simply a text scanner that parses text into various tokens, to then be interpreted by the parser. The regular expressions used by the scanner were listed above in the language reference chapter. 
 
@@ -13,11 +22,4 @@
 
 	\subsection{The Code Generator}
 
-\section{C Bindings}
-
-	\subsection{\texttt{pthread()}}
-
-	\subsection{\texttt{sockets} API}
-
-	\subsection{File I/O}
 

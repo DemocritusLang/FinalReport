@@ -1,7 +1,27 @@
 \chapter{Project Plan}
+	
+\section{Planning}
+	Much of the planning was facilitated by our weekly meetings with David Watkins, our TA. He very clearly explained what the requirements of each milestone entailed, and helped keep expectations transparent. Since Professor Edwards had emphasized the need for vertical development of features instead of horizontal building of each compiler layer, we quickly identified the key features that would be required to enable the key functionality of our language. Two of the most important components were structs and threads.
+
+  \medskip \noindent
+  Our initial plan, which we largely followed, was to complete the Language Reference Manual, experiment with the layers of the compiler and get \texttt{Hello, World!} working, and then use what we had learned to begin implementing the more crucial aspects of the language.
 
 \section{Workflow}
 
+  Workflow was facilitated by Git and GitHub, which allowed for the team to easily work on multiple features simultaneously and (usually) merge together features without overlapping conflicts. The Git workflow reached an optimal point by the conclusion of the project; new features would be developed, tested, and finalized in separate branches, and the commits for that feature would be squashed down until a single commit representing the new feature would be merged into the master branch.
+
+  \medskip \noindent
+  Features were developed individually or through paired programming, depending on the scope and complexity of the feature. GitHub and division of labor allowed for many team members to work independently, at different times of the day per their own schedule. Branching allowed for one person to quickly deploy buggy code to another in hopes of resolving the issue, without any modification or bad commits to the master branch. GroupMe was used extensively for inter-team communication.
+
 \section{Team Member Responsibilities}
+  
+
+  \begin{tabular}{ | l | l | l |}\hline
+    Team Member  & Responsibilities      & GitHub Handle\\ \hline
+    Amy Xu & structs, nested structs, pointers & axxu\\
+    Emily Pakulski & C-bindings, reformatting tests, atomicity & ohEmily\\
+    Amarto Rajaram & C-bindings, pthread, file I/O, malloc & Amarto\\
+    Kyle Lee & structs, Amy's debugger, LRM, Final Report & kyle--lee\\ \hline
+  \end{tabular}
 
 \section{Git Logs}

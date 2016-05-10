@@ -96,7 +96,7 @@ function main() int{
 
 
 	 	\subsubsection{Structs}
-	 	Structs are declared at the global level with the \texttt{<struct struct\_type \{ named fields \}>} syntax. Struct declarations may also be nested.
+	 	Structs are declared at the global level with the \verb|<struct struct_type { named fields }>| syntax. Struct declarations may also be nested.
 
 	 	\begin{lstlisting}
 struct Person{
@@ -283,7 +283,7 @@ function main() int{
   let fd int;
   let malloced string;
   fd = open("tests/HELLOOOOOO.txt", 66, 384); 	/* Open this file */
-  write(fd, "hellooo!\n", 9); 									/* Write these 9 bytes */
+  write(fd, "hellooo!\n", 10); 									/* Write these 10 bytes */
   malloced = malloc(10); 			/* Allocate space for the data and null terminator */
   lseek(fd, 0, 0);						/* Jump to the front of the file */
   read(fd, malloced, 10);			/* Read the data we just wrote into the buffer */
