@@ -1,8 +1,10 @@
 \section{Introduction}
-    In the grammars shown in this reference manual, all terminals are expressed in uppercase and all nonterminals are kept lowercase. The Lexical Conventions section will detail terminals (also known as tokens). 
+    In this language reference manual, Democritus, its syntax, and underlying operating mechanisms will be documented. In the grammars shown in this reference manual, all terminals are expressed in uppercase and all nonterminals are kept lowercase. The Lexical Conventions section will detail terminals (also known as tokens). 
 
 \section{Structure of a Democritus Program}
-    
+    A basic Democritus program reduces to a list of global variable, struct, and function declarations. Code `to be executed' should be written in functions. These declarations are accessible and usable from any scope in a Democritus program. At runtime, the function \texttt{main()} will be executed.
+
+    \bigskip \noindent
     The full grammar of a program is as follows:
 
     \begin{verbatim}
