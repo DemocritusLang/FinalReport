@@ -1,4 +1,37 @@
 \section{Statements}
+    \subsection{Declaration and Assignment}
+
+
+      \subsubsection{Variable Declaration}
+        Democritus requires all named variables to be declared with its type at the top of each function. Named variables are declared with the \texttt{let [ID] type} syntax. Assignment to these variables may then be done with \texttt{=}.
+        
+        \bigskip \noindent 
+        The grammar for variable declarations is as follows: 
+        \begin{verbatim}
+  vdecl:
+    LET ID typ SEMI 
+
+  typ:
+      INT       
+    | BOOL      
+    | VOID      
+    | STRTYPE   
+    | STRUCT ID 
+    | VOIDSTAR  
+    | STAR %prec POINTER typ 
+        \end{verbatim}
+
+    \subsubsection{Struct Declaration}
+      Structs are defined at the global scope, and can then be declared as variables. The global definitions are as follows: 
+
+      \begin{verbatim}
+sdecl:
+    STRUCT ID LBRACE vdecl_list RBRACE
+
+vdecl_list:
+  | vdecl_list vdecl
+      \end{verbatim}
+
 
     \subsection{Expressions}
         An expression statement consists of an expression followed by a semicolon. Expressions in expression statements will be evaluated, and its value calculated.

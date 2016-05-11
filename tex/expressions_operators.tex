@@ -1,53 +1,77 @@
 \section{Expressions and Operators}
-	An expression consists of a combination of any of the following:
+  In the grammars shown in this section and all subsequent sections, all terminals are expressed in uppercase and all nonterminals are kept lowercase. 
+
+	\subsection{Expressions}
+    Expressions may be any of the following:
+    
+    \subsubsection{Literal}
+      A literal of any type, as detailed in the lexical conventions section.
+    \subsubsection{Identifier}
+      An identifier for a variable.
+    \subsubsection{Binary Operation}
+      A binary operation between an expression and another expression.
+    \subsubsection{Unary Operation}
+      A unary operation acting on the expression appearing on the immediate right of the operator.
+    \subsubsection{Struct Access}
+      An expression of a \texttt{struct} type accessing an identifier field with the \texttt{dot (.)} operator.
+    \subsubsection{Struct Assignment}
+      An expression of a \texttt{struct} type assigning a value to one of its fields (accessed with the \texttt{dot (.)} operator) using the \texttt{=} operator.
+    \subsubsection{Function Call}
+      A call to a function along with its formal arguments.
+    \subsubsection{Variable Assignment}
+      An identifier being assigned a value with the \texttt{=} operator.
+    \subsubsection{Parenthisization}
+      Another expression nested within parentheses.
+
+    \bigskip\noindent The grammar for expressions is as follows:
+    \begin{verbatim}
+expr:
+    LITERAL       
+  | FLOATLITERAL     
+  | TRUE          
+  | FALSE            
+  | ID            
+  | STRING      
+  | expr PLUS   expr              (* expr TERMINAL expr are binary operations *)
+  | expr MINUS  expr 
+  | expr STAR   expr 
+  | expr DIVIDE expr 
+  | expr MOD    expr 
+  | expr EQ     expr 
+  | expr NEQ    expr 
+  | expr LT     expr 
+  | expr LEQ    expr 
+  | expr GT     expr 
+  | expr GEQ    expr 
+  | expr AND    expr 
+  | expr OR     expr
+  | expr DOT    ID                (* struct acccess     *)
+  | expr DOT    ID ASSIGN expr    (* struct assign      *)
+  | MINUS expr  %prec NEG         (* unary arith negate *)
+  | STAR expr   %prec DEREF       (* unary deref        *)
+  | REF expr                      (* unary ref          *)
+  | NOT expr                      (* unary log negate   *)
+  | ID ASSIGN expr  
+  | ID LPAREN actuals_opt RPAREN  (* function call      *)
+  | LPAREN expr RPAREN            (* paren'd expr       *)
+    \end{verbatim}
+
+
+    \subsection{Binary and Unary Operations}
+      A binary operation operates on the two expressions on the left and right side of the operator. Binary operations may be:
     \begin{itemize}
-        \item a literal value (constants)
-        \item a variable name
-        \item a binary operation between two other expressions
-        \item a unary operation on an expression
-        \iffalse \item an array access operation\fi
-        \item a struct access 
-        \item a function call
-        \item a variable or struct field assignment
-        \item another expression contained within parentheses 
+      \item an addition, subtraction, mult., division, or modulo on two arithmetic expressions (\texttt{+,-,*,/,\%}).\\ Modulo only works on integer types.
+      \item  equality or inequality expression between boolean expressions (\verb^==,!=,<,<=,>,>=,&&,||^)
     \end{itemize}
 
-
-
-
-
-    \subsection{Declaration and Assignment}
-      In the grammars shown in this section and all subsequent sections, all terminals are expressed in uppercase and all nonterminals are kept lowercase. 
-
-      \subsubsection{Variable Declaration}
-      	Democritus requires all named variables to be declared with its type at the top of each function. Named variables are declared with the \texttt{let [ID] type} syntax. Assignment to these variables may then be done with \texttt{=}.
-        
-        \bigskip \noindent 
-        The grammar for variable declarations is as follows: 
-        \begin{verbatim}
-  vdecl:
-    LET ID typ SEMI 
-
-  typ:
-      INT       
-    | BOOL      
-    | VOID      
-    | STRTYPE   
-    | STRUCT ID 
-    | VOIDSTAR  
-    | STAR %prec POINTER typ 
-        \end{verbatim}
-
-    \subsubsection{Struct Declaration}
-      Structs are defined at the global scope, and can then be declared as variables. The global definitions are as follows: 
-
-      \begin{verbatim}
-sdecl:
-    STRUCT ID LBRACE vdecl_list RBRACE
-
-vdecl_list:
-  | vdecl_list vdecl
-      \end{verbatim}
+    \noindent
+    A unary operation operates on the expression on the operator's right side:
+    \begin{itemize}
+      \item a negation of an arithmetic expression (\texttt{-})
+      \item a dereference of a pointer type (\texttt{*})
+      \item an address reference of a variable or field within a struct (\verb|&|)
+      \item a negation of a boolean expression (\texttt{!})
+    \end{itemize}
 
 
       \iffalse
@@ -59,21 +83,7 @@ vdecl_list:
 	\subsection{Arithmetic Operations}
 		Democritus supports all the arithmetic operations standard to most general-purpose languages, documented below. Automatic casting has not been included in the language, and the compiler will throw an error in the case that arithmetic operations are performed between the same types of expressions.  
 
-    \noindent
-    A binary operation operates on the two expressions on the left and right side of the operator. Binary operations may be:
-    \begin{itemize}
-      \item an addition, subtraction, multiplication, or division between arithmetic expressions (\texttt{+,-,*,/})
-      \item an equality or inequality expression between boolean expressions (\verb^==,!=,<,<=,>,>=,&&,||^)
-    \end{itemize}
 
-    \noindent
-    A unary operation operates on the expression on the operator's right side:
-    \begin{itemize}
-      \item a negation of an arithmetic expression (\texttt{-})
-      \item a dereference of a pointer type (\texttt{*})
-      \item an address reference of a variable or field within a struct (\verb|&|)
-      \item a negation of a boolean expression (\texttt{!})
-    \end{itemize}
 		
 		\subsubsection{Addition and Subtraction}
 			Addition works with the \texttt{+} character, behaving as expected. Subtraction is called with \texttt{-}.
@@ -81,10 +91,10 @@ vdecl_list:
 		\subsubsection{Multiplication and Division} 
 		  Multiplication is called with \texttt{*}, and division with \texttt{/}. Division between integers discards the fractional part of the division. 	
 
-    \iffalse
-    \subsubsection{Modulus}
+
+    \subsubsection{Modulo}
       The remainder of an integer division operation can be computed via the modulo \texttt{\%} operator.
-	
+	    \iffalse
 		\subsubsection{Bit Shifting}
 			Integers can be bit-shifted with \verb|>>| and \verb|<<|.
 	  \fi
@@ -112,7 +122,11 @@ vdecl_list:
     Function calls are treated as expressions with a type equal to their return type. As an applicative-order language, Democritus evaluates function arguments first before passing them to the function. The grammar for function calls is as follows:
 
     \begin{verbatim}
-  | ID LPAREN actuals_opt RPAREN { Call($1, $3) }
+expr:
+  .
+  .
+  .
+  | ID LPAREN actuals_opt RPAREN { Call($1, $3) }    (* Function call *)
 
 actuals_opt:
   /* nothing *?   { [] }
@@ -125,7 +139,7 @@ actuals_list:
 
 
   \subsection{Pointers and References}
-		Pointers and dereferencing operations utilize the same syntax as C. The unary operator \texttt{\&} gives a variables address in memory, and the operator \texttt{*} dereferences a pointer. See the assignment subsection for usage.
+		Referencing and dereferencing operations are used to manage memory and addressing in Democritus. The unary operator \texttt{\&} gives a variable or struct field's address in memory, and the operator \texttt{*} dereferences a pointer type.
 	
   \iffalse
 	\subsection{Array access}
@@ -144,8 +158,8 @@ actuals_list:
       & \texttt{!}  & Negation           &               \\
       & \texttt{-}  & Unary minus        &               \\ \hline
     4 & \texttt{*}  & Multiplication     & Left-to-right \\ 
-      & \texttt{/}  & Division           &               \\ \hline
-      \iffalse & \texttt{\%} & Modulo             &               \\ \hline \fi
+      & \texttt{/}  & Division           &               \\ 
+      & \texttt{\%} & Modulo             &               \\ \hline 
     5 & \texttt{+}  & Addition           & Left-to-right \\
       & \texttt{-}  & Subtraction        &               \\ \hline
   \iffalse  6 & \verb|>>| & Bitwise shift shift right & Left-to-right \\

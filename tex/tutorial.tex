@@ -1,6 +1,6 @@
 \chapter{Language Tutorial}
 
-Democritus is a strongly-typed, imperative language with standard methods for conditional blocks, iteration, variable assignment, and expression evaluation. In this chapter, we will cover environment configuration as well as utilizing Democritus' basic and more advanced features.
+Democritus is a statically-typed, imperative language with standard methods for conditional blocks, iteration, variable assignment, and expression evaluation. In this chapter, we will cover environment configuration as well as utilizing bothDemocritus' basic and advanced features.
 
 \section{Setup and Installation}
 
@@ -61,7 +61,7 @@ lli outfile.lli
 
 \section{Writing Code}
 
-	Code can be written in any text file, but Democritus source files should have the \texttt{.dem} extension by convention. Democritus programs consist of global function, struct, and variable declarations. Only the code inside main() will be exectued at runtime. At this time, linking is not included in the Democritus compiler; all code should be written and compiled from a single \texttt{.demo} source file.
+	Code can be written in any text file, but Democritus source files should have the \texttt{.dem} extension by convention. Democritus programs consist of global function, struct, and variable declarations. Only the code inside main() will be exectued at runtime. At this time, linking is not included in the Democritus compiler; all code should be written and compiled from a single \texttt{.dem} source file.
 
 \section{Getting Started}
 
@@ -142,7 +142,7 @@ function main() int{
 
 		\subsubsection{Binary Operators:}
 		\begin{itemize}
-			\item artithmetic: \texttt{+, -, *, /}
+			\item artithmetic: \texttt{+, -, *, /, \%}
 			\item logical:\verb^ ==, !=, <, <=, >, >=, && (and), || (or) ^ 
 		\end{itemize}
 
@@ -150,6 +150,7 @@ function main() int{
 		\begin{itemize}
 			\item artihmetic: \texttt{-}
 			\item logical: \texttt{! (not)}
+			\item addressing: \texttt{\& (reference), * (reference)}
 		\end{itemize}
 
 		\noindent
@@ -157,6 +158,9 @@ function main() int{
 
 		\medskip \noindent
 		The expressions on each side of a binary operation must be of the same type. The \verb^ &&, ||,^ and \verb^! ^ operators must be called on boolean expressions.
+
+		\medskip \noindent
+		References can only be called on addressable fields (such as variables, or struct fields). Dereferences can only be called on pointer types.
 
 \section{Pointers}
 
@@ -213,19 +217,7 @@ function main() int{
 		This program prints ``Joe is looking for work.''
 
 	\subsection{Loops and Iteration}
-		Iteration can be done either via a \texttt{while} or \texttt{for} loop. A \texttt{while(e1)} loop requires \texttt{e1} to be boolean conditional statement. A \texttt{for(e1; e2; e3)} loop requires three expressions; \texttt{e1} is called prior to entering the loop, \texttt{e2} is a boolean conditional statement for the loop, and \texttt{e3} is called after each iteration. Both \texttt{e1} and \texttt{e3} may be empty expressions. Each of the following functions should print 42.
-
-		\begin{lstlisting}
-function main() int{
-	let i int;
-	i = 0;
-	while(i<42){
-		i = i+1;
-	}
-	print_int(i)
-	return 0;
-}
-		\end{lstlisting}
+		Iteration can be done either via a \texttt{for} loop. A \texttt{for(e1; e2; e3)} loop may take three expressions; \texttt{e1} is called prior to entering the loop, \texttt{e2} is a boolean conditional statement for the loop, and \texttt{e3} is called after each iteration. Both \texttt{e1} and \texttt{e3} are optional; omitting both converts the \texttt{for} loop into the conditional \texttt{while} used in other languages.
 
 		\begin{lstlisting}
 function main() int{
@@ -233,10 +225,20 @@ function main() int{
 	for(i = 0; i<42; i++){
 		i = i+1;
 	}
-	print_int(i)
+
+	for(;false;){
+		// This block will never be reached
+	}
+
+	for(true){
+		print_int(i);
+	}
 	return 0;
 }
 		\end{lstlisting}
+
+		\medskip \noindent
+		This program will print 42 forever.
 
 
 
@@ -289,11 +291,14 @@ function main() int{
 
   let fd int;
   let malloced string;
+  
   fd = open("tests/HELLOOOOOO.txt", 66, 384); 	/* Open this file */
   write(fd, "hellooo!\n", 10); 									/* Write these 10 bytes */
+  
   malloced = malloc(10); 			/* Allocate space for the data and null terminator */
   lseek(fd, 0, 0);						/* Jump to the front of the file */
   read(fd, malloced, 10);			/* Read the data we just wrote into the buffer */
+  
   print(malloced);						/* Prints "hellooo!\n" */
   return 0;
 }
