@@ -7,7 +7,7 @@ Democritus is a strongly-typed, imperative language with standard methods for co
 	To set up the Democritus compiler, OCaml and LLVM must be installed. Testing and development was done in both native Ubuntu 15.04 and Ubuntu 14.04 running on a virtual machine.
 
 	\begin{lstlisting}
-sudo apt-get install m4 clang-3.7 clang-3.7-doc libclang-common-3.7-dev libclang-3.7-dev libclang1-3.7 libclang1-3.7-dbg libllvm-3.7-ocaml-dev libllvm3.7 libllvm3.7-dbg lldb-3.7 llvm-3.7 llvm-3.7-dev llvm-3.7-doc llvm-3.7-examples llvm-3.7-runtime clang-modernize-3.7 clang-format-3.7 python-clang-3.7 lldb-3.7-dev liblldb-3.7-dbg opam llvm-runtime
+sudo apt-get install m4 clang-3.7 clang clang-3.7-doc libclang-common-3.7-dev libclang-3.7-dev libclang1-3.7 libclang1-3.7-dbg libllvm-3.7-ocaml-dev libllvm3.7 libllvm3.7-dbg lldb-3.7 llvm-3.7 llvm-3.7-dev llvm-3.7-doc llvm-3.7-examples llvm-3.7-runtime clang-modernize-3.7 clang-format-3.7 python-clang-3.7 lldb-3.7-dev liblldb-3.7-dbg opam llvm-runtime
 	\end{lstlisting}
 
 	\medskip \noindent For Ubuntu 15.04, we need the matching LLVM 3.6 OCaml Library.
@@ -51,7 +51,7 @@ git clone https://github.com/DemocritusLang/Democritus.git
 	\medskip \noindent
 	To compile code, simply run
 	\begin{lstlisting}
-./Democritus < filename.demo > outfile.lli
+./Democritus < filename.dem > outfile.lli
 	\end{lstlisting}
 
 	\noindent To run compiled code, call \texttt{lli} on the output:
@@ -77,7 +77,10 @@ function triangle_area(base int, height int) int{
 	\subsection{Types}
 
 		\subsubsection{Primitives}
-		Primitive types in Democritus include booleans, integers, and strings. The void type is also used for functions.
+		Primitive types in Democritus include booleans and integers. The void type is also used for functions.
+
+		\subsubsection{Strings}
+		Strings are built-in to Democritus. String literals are added to global static memory at runtime, and string variables point to the literals. These literals are automatically null-terminated.
 
 		\begin{lstlisting}
 function main() int{
@@ -155,6 +158,7 @@ function main() int{
 		\medskip \noindent
 		The expressions on each side of a binary operation must be of the same type. The \verb^ &&, ||,^ and \verb^! ^ operators must be called on boolean expressions.
 
+\section{Pointers}
 
 \section{Control Flow}
 	As an imperative language, Democritus executes statements sequentially from the top of any given function to the bottom. Branching and iteration is done similarly to many other imperative languages.
@@ -204,6 +208,9 @@ function main() int{
 	return 0;
 }
 		\end{lstlisting}
+
+		\medskip \noindent
+		This program prints ``Joe is looking for work.''
 
 	\subsection{Loops and Iteration}
 		Iteration can be done either via a \texttt{while} or \texttt{for} loop. A \texttt{while(e1)} loop requires \texttt{e1} to be boolean conditional statement. A \texttt{for(e1; e2; e3)} loop requires three expressions; \texttt{e1} is called prior to entering the loop, \texttt{e2} is a boolean conditional statement for the loop, and \texttt{e3} is called after each iteration. Both \texttt{e1} and \texttt{e3} may be empty expressions. Each of the following functions should print 42.

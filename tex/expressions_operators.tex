@@ -1,160 +1,164 @@
 \section{Expressions and Operators}
 	An expression consists of a combination of any of the following:
     \begin{itemize}
-        \item a literal value
+        \item a literal value (constants)
         \item a variable name
-        \item a binary operation
-        \item a unary operation
-        \item an array access operation
+        \item a binary operation between two other expressions
+        \item a unary operation on an expression
+        \iffalse \item an array access operation\fi
         \item a struct access 
+        \item a function call
+        \item a variable or struct field assignment
+        \item another expression contained within parentheses 
     \end{itemize}
-    \subsection{Declaration and Assignment}
-    	Democritus requires all named variables to be declared with its type at the top of each function. Named variables are declared with the \texttt{let [ID] type} syntax. Assignment to these variables may be done with \texttt{=}.
 
+
+
+
+
+    \subsection{Declaration and Assignment}
+      In the grammars shown in this section and all subsequent sections, all terminals are expressed in uppercase and all nonterminals are kept lowercase. 
+
+      \subsubsection{Variable Declaration}
+      	Democritus requires all named variables to be declared with its type at the top of each function. Named variables are declared with the \texttt{let [ID] type} syntax. Assignment to these variables may then be done with \texttt{=}.
+        
+        \bigskip \noindent 
+        The grammar for variable declarations is as follows: 
+        \begin{verbatim}
+  vdecl:
+    LET ID typ SEMI 
+
+  typ:
+      INT       
+    | BOOL      
+    | VOID      
+    | STRTYPE   
+    | STRUCT ID 
+    | VOIDSTAR  
+    | STAR %prec POINTER typ 
+        \end{verbatim}
+
+    \subsubsection{Struct Declaration}
+      Structs are defined at the global scope, and can then be declared as variables. The global definitions are as follows: 
+
+      \begin{verbatim}
+sdecl:
+    STRUCT ID LBRACE vdecl_list RBRACE
+
+vdecl_list:
+  | vdecl_list vdecl
+      \end{verbatim}
+
+
+      \iffalse
+  		\medskip \noindent 
+      Array assignment is done with brackets. Note that the size of the array must be specified in the declaration. 
+  		\fi
 		
-		\begin{lstlisting}
-x float = 4.0;
-y int = 5/2 + 1; 	/* y = 3 */
-		\end{lstlisting}
-		
-		\noindent Array assignment is done with Java-like syntax. Note that the size of the array must be specified in the declaration. 
-		
-		\begin{lstlisting}
-x int[5] = {0,1,2,3,4};
-		\end{lstlisting}
-		
-		\noindent Pointer types are denoted with a \texttt{*} which must be attached to the primitive type that they reference.
-		
-		\begin{lstlisting}
-x int  = 4;   /* x = 4  */
-y int* = &x;  /* *y = 4 */
-		\end{lstlisting}
 		
 	\subsection{Arithmetic Operations}
-		Democritus supports all the arithmetic operations standard to most general-purpose languages like C and Java. Note that casting is not built into the language; this functionality will instead be implemented through the standard library.
+		Democritus supports all the arithmetic operations standard to most general-purpose languages, documented below. Automatic casting has not been included in the language, and the compiler will throw an error in the case that arithmetic operations are performed between the same types of expressions.  
+
+    \noindent
+    A binary operation operates on the two expressions on the left and right side of the operator. Binary operations may be:
+    \begin{itemize}
+      \item an addition, subtraction, multiplication, or division between arithmetic expressions (\texttt{+,-,*,/})
+      \item an equality or inequality expression between boolean expressions (\verb^==,!=,<,<=,>,>=,&&,||^)
+    \end{itemize}
+
+    \noindent
+    A unary operation operates on the expression on the operator's right side:
+    \begin{itemize}
+      \item a negation of an arithmetic expression (\texttt{-})
+      \item a dereference of a pointer type (\texttt{*})
+      \item an address reference of a variable or field within a struct (\verb|&|)
+      \item a negation of a boolean expression (\texttt{!})
+    \end{itemize}
 		
 		\subsubsection{Addition and Subtraction}
-			Addition works with the \texttt{+} character, behaving as expected.
-			\begin{lstlisting}
-x int = 4;
-y int = 2;
-x = x + y; 	/* x = 6  */
-y = y - x 	/* y = -4 */
-			\end{lstlisting}
+			Addition works with the \texttt{+} character, behaving as expected. Subtraction is called with \texttt{-}.
 						
-		\subsubsection{Multiplication}
-			Multiplication follows the same rules as well. 
-			\begin{lstlisting}
-x int = 4;
-y int = 2;
-x = x * y + y; /* x = 10 */
-			\end{lstlisting}
-			
+		\subsubsection{Multiplication and Division} 
+		  Multiplication is called with \texttt{*}, and division with \texttt{/}. Division between integers discards the fractional part of the division. 	
 
-		\subsubsection{Division}
-			Democritus will default to integer division, unless both types provided are floats. 
-			\begin{lstlisting}
-x int = 5;
-y int = 2;
-x = x / y; 	/* x = 2  */
-
-a float = 4.0;
-b float = 2.0;
-a = b / a; 	/* a = 2.0 approximately */
-			\end{lstlisting}
-
-        \subsubsection{Modulus}
-            The remainder of an integer division operation can be computed via the modulo \texttt{\%} operator.
-            \begin{lstlisting}
-x int = 8;
-y int = 5;
-x = x%y; 	/* x = 3  */
-			\end{lstlisting}
+    \iffalse
+    \subsubsection{Modulus}
+      The remainder of an integer division operation can be computed via the modulo \texttt{\%} operator.
 	
 		\subsubsection{Bit Shifting}
 			Integers can be bit-shifted with \verb|>>| and \verb|<<|.
-			\begin{lstlisting}
-x int = 9;
-y int = x>>1;  /* y = 4  */
-x = y<<2; 	   /* x = 16 */
-			\end{lstlisting}
-		
-	\subsection{Boolean Expressions}
-		Democritus features all of the standard logical operators, following Java-style syntax. Each expression will return a boolean value of true or false.
+	  \fi
 
-        \subsubsection{Equality}
-            Equality is tested with the \texttt{==} operator. Inequality is tested with \texttt{!=}. 
-            \begin{lstlisting}
-x int = 8;
-y int = 8;
-z boolean = (x == y);		/* z = true  */
-z = (x == (y + 1));			/* z = false */
-z = (x != (y + 1));			/* z = true  */
-			\end{lstlisting}
+	\subsection{Boolean Expressions}
+		Democritus features all standard logical operators, utilizing \texttt{!} for negation, and \verb|&&| and \verb^||^ for \texttt{and} and \texttt{or}, respectively. Each expression will return a boolean value of true or false.
+
+    \subsubsection{Equality}
+            Equality is tested with the \texttt{==} operator. Inequality is tested with \texttt{!=}. Equality may be tested on both boolean and arithmetic expressions. 
 			
 		\subsubsection{Negation}
-			Negation is done with \texttt{!}, a unary operation.
+			Negation is done with \texttt{!}, a unary operation for boolean expressions. 
 
-        \subsubsection{Comparison}
-            Democritus also features the \verb|<|, \verb|<=|, \verb|>|, and \verb|>=| operators.  
+    \subsubsection{Comparison}
+      Democritus also features the \verb|<|, \verb|<=|, \verb|>|, and \verb|>=| operators. These represent less than, less than or equal to, greater than, and greater than or equal to, respectively. These operators are called on arithmetic expressions and return a boolean value. 
             
-            \begin{lstlisting}
-x int = 9;
-y int = 8;
-z int = 8;
 
-x>y;    /* true */
-y>=z;   /* true */
-z<x;    /* true */
-            \end{lstlisting}
+      \subsubsection{Chained Expressions}
+            Boolean expressions can be chained with \verb|&&| and \verb!||!, representing \texttt{and} and \texttt{or}. These operators have lower precedence than any of the other boolean operators described above. The \texttt{and} operator has a higher precedence than \texttt{or}.
 
-        \subsubsection{Chained Expressions}
-            Boolean expressions can be chained with \verb|&&| and \verb!||!, representing \texttt{and} and \texttt{or}, respectively. These operators have lower precedence than any of the other boolean operators described above. The \texttt{and} operator has a higher precedence than \texttt{or}.
+  \subsection{Parentheses}
+    Parentheses are used to group expressions together, since they have the highest order of precedence. Using parentheses will ensure that whatever is encapsulated within will be evaluated first.
 
-            \begin{lstlisting}
-x int = 9;
-y int = 8;
-z int = 8;
+  \subsection{Function Calls}
+    Function calls are treated as expressions with a type equal to their return type. As an applicative-order language, Democritus evaluates function arguments first before passing them to the function. The grammar for function calls is as follows:
 
-(x>y && y<x);			/* false */
-(x>y || y<x);			/* true */
-(x>y && y<x || z==y)	/* true */
-            \end{lstlisting}
-            
-	\subsection{Pointers and References}
+    \begin{verbatim}
+  | ID LPAREN actuals_opt RPAREN { Call($1, $3) }
+
+actuals_opt:
+  /* nothing *?   { [] }
+  |  actuals_list { List.rev $1 }
+
+actuals_list:
+     expr        { [$1] }
+  |  actuals_list COMMA expr { $3 :: $1 }
+    \end{verbatim}
+
+
+  \subsection{Pointers and References}
 		Pointers and dereferencing operations utilize the same syntax as C. The unary operator \texttt{\&} gives a variables address in memory, and the operator \texttt{*} dereferences a pointer. See the assignment subsection for usage.
-		
+	
+  \iffalse
 	\subsection{Array access}
 		Array access is done with \texttt{[\textit{i}]} where \textit{i} is the index being accessed. 
-		
-		\begin{lstlisting}
-x int[5] = {0,1,2,3,4};
-y int = x[2];  			/* y = 2 */
-		\end{lstlisting}
+  \fi
+
     \subsection{Operator Precedence and Associativity}
         \begin{tabular}{ | l | l | l | l | }\hline
 	Precedence  & Operator      & Description & Associativity \\ \hline
 	1 & \texttt{()} & Parenthesis        & Left-to-right \\ \hline
     2 & \texttt{()} & Function call      & Left-to-right \\
-      & \verb|{}| & Array creation  s   &               \\ 
-      & \texttt{[]} & Array subscript    &               \\ \hline
+      \iffalse & \verb|{}| & Array creation  s   &               \\ 
+      & \texttt{[]} & Array subscript    &               \\ \hline \fi
     3 & \texttt{*}  & Dereference        & Right-to-left \\ 
       & \texttt{\&} & Address-of         &               \\
       & \texttt{!}  & Negation           &               \\
       & \texttt{-}  & Unary minus        &               \\ \hline
     4 & \texttt{*}  & Multiplication     & Left-to-right \\ 
-      & \texttt{/}  & Division           &               \\
-      & \texttt{\%} & Modulo             &               \\ \hline
+      & \texttt{/}  & Division           &               \\ \hline
+      \iffalse & \texttt{\%} & Modulo             &               \\ \hline \fi
     5 & \texttt{+}  & Addition           & Left-to-right \\
       & \texttt{-}  & Subtraction        &               \\ \hline
-    6 & \verb|>>| & Bitwise shift shift right & Left-to-right \\
-      & \verb|<<| & Bitwise shift left & \\ \hline
-    7 & \verb|>>| = & For relational $>$ and $\geq$ respectively & Left-to-right \\
+  \iffalse  6 & \verb|>>| & Bitwise shift shift right & Left-to-right \\
+      & \verb|<<| & Bitwise shift left & \\ \hline \fi
+    6 & \verb|>>| = & For relational $>$ and $\geq$ respectively & Left-to-right \\
       & \verb|<<=| & For relational $<$ and $\leq$ respectively & \\ \hline
-    8 & \texttt{==} \texttt{!=} & For relational $=$ and $\neq$ respectively & Left-to-right \\\hline
-    9 & \texttt{\&\&} & Logical \texttt{and} & Left-to-right \\ \hline
-    10 & \verb!||! &  Logical \texttt{or} & Left-to-right \\ \hline
-    11 & \texttt{=} & Assignment & Right-to-left \\ \hline
+    7 & \texttt{==} \texttt{!=} & For relational $=$ and $\neq$ respectively & Left-to-right \\\hline
+    8 & \texttt{\&\&} & Logical \texttt{and} & Left-to-right \\ \hline
+    9 & \verb!||! &  Logical \texttt{or} & Left-to-right \\ \hline
+    10 & \texttt{=} & Assignment & Right-to-left \\ \hline
+
+
+
 
 \end{tabular}
 

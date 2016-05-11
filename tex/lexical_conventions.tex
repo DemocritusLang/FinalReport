@@ -1,100 +1,138 @@
 \section{Lexical Conventions}
-	In this subsection, we will cover the standard lexical conventions for Democritus. As with languages such as C, Algol, or Pascal, Democritus is a free-format language. The parser will discard whitespace characters such as \texttt{` '}, \verb|\t|, and \verb|\n|.
+	In this subsection, we will cover the standard lexical conventions for Democritus. Lexical elements are scanned as `tokens,' which are then parsed into a valid Democritus program. Democritus is a free-format language, discarding all whitespace characters such as \texttt{` '}, \verb|\t|, and \verb|\n|.
 	
 	\subsection{Identifiers}
-		Identifiers for Democritus will be defined as follows: any sequence of letters and numbers without whitespaces and is not a keyword will be parsed as an identifier. Note that, as in other languages, identifiers cannot begin with a number. Somewhat different, however, is the order of variable declarations; in Democritus, declarations are made following the \textit{varname vartype} structure. The regular expression defining identifiers is as follows:
+		Identifiers for Democritus will be defined as follows: any sequence of letters and numbers without whitespaces and not a keyword will be parsed as an identifier. Identifiers must start with a letter, but they may contain any lowercase or uppercase ASCII letter, numbers, and the underscore `\_'. Identifiers are case-sensitive, so `var1' and `Var1' would be deemed separate and unique. Identifiers are used to identify named elements, such as variables, struct fields, and functions. Note that identifiers cannot begin with a number. The following is a regular expression for identifiers:
 		
-	\begin{lstlisting}
-['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']*
-	\end{lstlisting}
-	
-	\noindent An example of declarations with identifiers: 
-	
-	\begin{lstlisting}
-2wrongID int;		/* not a valid identifier declaration */
-mySecond float;		/* valid */
-my_Second char;		/* valid */
-	\end{lstlisting}
-	
+		\begin{verbatim}
+ID = "['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']*"
+		\end{verbatim}
+	\subsection{Reserved Keywords}
+		The following is a list of reserved Democritus keywords:
+        \begin{verbatim}
+if          else        for         return      int     
+bool        void        true        false       string
+struct      *void       function    let
+        \end{verbatim}
 	\subsection{Literals}
-		Literals, simply a sequence of numbers, may be identified with the regular expression
-	\begin{lstlisting}[language=Caml]
-['0'-'9']+ 					(* Int *)
-['0'-'9']*'.'['0'-'9']+  	(* Float *)
-	\end{lstlisting}
-	
-	\subsection{Tokens}
+		Literals are used to represent various values or constants within the language.
+
+        \subsubsection{Integer Literals}
+            Integer literals are simply a sequence of ASCII digits, represented in decimal. 
+	       \begin{verbatim}
+INT = "['0'-'9']+"
+	       \end{verbatim}
+
+        \iffalse
+        \subsubsection{Float Literals}
+            Float literals represent floating point numbers, also expressed in decimal. They can use the dot (.) notation, exponential notation, or any combination of the two. 
+
+            \begin{verbatim}
+FLOAT = 
+            \end{verbatim}
+        \fi
+        \subsubsection{Boolean Literals}
+            Boolean literals represent the two possible values that boolean variables can take, \texttt{true} or \texttt{false}. These literals are represented in lowercase. 
+            \begin{verbatim}
+BOOLEAN = "true|false"
+            \end{verbatim}
+
+        \subsubsection{String Literals}
+            String literals represent strings of characters, including escaped characters. String literals are automatically null-terminated. Strings are opened and closed with double quotations. A special OCaml \texttt{lexbuf} was used to parse string literals. 
+
+            \begin{verbatim}
+(Taken from http://realworldocaml.org/v1/en/html/parsing-with-ocamllex-and-menhir.html)
+
+read_string buf = parse
+  | '"'             { STRING (Buffer.contents buf) }
+  | '\\' '/'        { Buffer.add_char buf '/'; read_string buf lexbuf }
+  | '\\' '\\'       { Buffer.add_char buf '\\'; read_string buf lexbuf }
+  | '\\' 'b'        { Buffer.add_char buf '\b'; read_string buf lexbuf }
+  | '\\' 'f'        { Buffer.add_char buf '\012'; read_string buf lexbuf }
+  | '\\' 'n'        { Buffer.add_char buf '\n'; read_string buf lexbuf }
+  | '\\' 'r'        { Buffer.add_char buf '\r'; read_string buf lexbuf }
+  | '\\' 't'        { Buffer.add_char buf '\t'; read_string buf lexbuf }
+  | [^ '"' '\\']+   { Buffer.add_string buf (Lexing.lexeme lexbuf);
+                        read_string buf lexbuf
+                    }
+            \end{verbatim}
+
+
+	\subsection{All Democritus Tokens}
 		The list of tokens used in Democritus are as follows:
-		\begin{lstlisting}[language=Caml]
-| '('      { LPAREN }
-| ')'      { RPAREN }
-| '{'      { LBRACE }
-| '}'      { RBRACE }
-| ';'      { SEMI }
-| ':'      { COLON }
-| ','      { COMMA }
-| '+'      { PLUS }
-| '-'      { MINUS } 
-| '*'      { TIMES }
-| '%'      { MOD }
-| ">>"     { RSHIFT }
-| "<<"     { LSHIFT }
-| '/'      { DIVIDE }
-| '='      { ASSIGN }
-| "=="     { EQ }
-| "!="     { NEQ }
-| '<'      { LT }
-| "<="     { LEQ }
-| ">"      { GT }
-| ">="     { GEQ }
-| "&&"     { AND }
-| "||"     { OR }
-| "!"      { NOT }
-| "if"     { IF }
-| "else"   { ELSE }
-| "elif"   { ELIF }
-| "for"    { FOR }
-| "return" { RETURN }
-| "int"    { INT }
-| "float"  { FLOAT }
-| "char"   { CHAR }
-| "boolean"   { BOOLEAN }
-| '*' { POINTER }
-| '&' { AMPERSAND }
-| "function" { FUNCTION }
-| "void"   { VOID }
-| "struct" { STRUCT }
-| "string" { STRING }
-| "true"   { TRUE }
-| "false"  { FALSE }
-| "break"  { BREAK } 
-| "continue" { CONTINUE }
-| "atomic" { ATOMIC }
-		\end{lstlisting}
+
+		\begin{verbatim}
+| "//"     		{ comment lexbuf }             	
+| "/*"     		{ multicomment lexbuf }          
+| '('      		{ LPAREN }
+| ')'      		{ RPAREN }
+| '{'      		{ LBRACE }
+| '}'      		{ RBRACE }
+| ';'      		{ SEMI }
+| ','      		{ COMMA }
+| '+'      		{ PLUS }
+| '-'      		{ MINUS }
+| '*'      		{ STAR }
+| '&'       { REF }
+| '.'      		{ DOT }
+| '/'      		{ DIVIDE }
+| '='      		{ ASSIGN }
+| "=="     		{ EQ }
+| "!="     		{ NEQ }
+| '<'      		{ LT }
+| "<="     		{ LEQ }
+| ">"      		{ GT }
+| ">="     		{ GEQ }
+| "&&"     		{ AND }
+| "||"     		{ OR }
+| "!"      		{ NOT }
+| "if"     		{ IF }
+| "else"   		{ ELSE }
+| "for"    		{ FOR }
+| "return" 		{ RETURN }
+| "int"    		{ INT }
+| "bool"   		{ BOOL }
+| "void"   		{ VOID }
+| "true"   		{ TRUE }
+| "string"		 { STRTYPE }
+| "struct" 		{ STRUCT }
+| "*void"  		{ VOIDSTAR }
+| "false"  		{ FALSE }
+| "function"  { FUNCTION }
+| "let"      	{ LET }
+| ['0'-'9']+ as lxm { LITERAL(int_of_string lxm) }
+| ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']* as lxm { ID(lxm) }
+| '"'    { read_string (Buffer.create 17) lexbuf } (* refer to read_string above *)
+| eof { EOF }
+\end{verbatim}
 		
-		\noindent These words have been reserved by the compiler and hold special meaning within the language. Though most are self-explanatory, we will delve into their usage later on. 
-		
+
 	\subsection{Punctuation}
 		\subsubsection{Semicolon}
-			As in C, the semicolon `;' is required to terminate any statement in Democritus. 
+			The semicolon `;' is required to terminate any statement in Democritus. 
 			
-			\begin{lstlisting}
+			\begin{verbatim}
 statement SEMI
-			\end{lstlisting}
+			\end{verbatim}
 			
 		\subsubsection{Curly Brackets}
 			In order to keep the language free-format, curly braces are used to delineate separate and nested blocks. These braces are required even for single-statement conditional and iteration loops.
 			
-			\begin{lstlisting}
+			\begin{verbatim}
 LBRACE statements RBRACE
-			\end{lstlisting}
+			\end{verbatim}
 			
 		\subsubsection{Parentheses}
 			To assert precedence, expressions may be encapsulated within parentheses to guarantee order of operations. 
 			
-			\begin{lstlisting}
+			\begin{verbatim}
 LPAREN expression RPAREN
-			\end{lstlisting}
+			\end{verbatim}
 			
-		\subsubsection{Comments}
-			For now, comments are initiated with \texttt{/*} and closed with \texttt{*/}. They cannot be nested.
+		\subsection{Comments}
+			Comments may either be single-line, intialized with two backslashes, or multi-line, enclosed by \verb|\* and *\|.
+
+            \begin{verbatim}
+COMMENT = ("// [^'\n']* \n") | ("/*" [^ "*/"]* "*/")
+            \end{verbatim}
+
