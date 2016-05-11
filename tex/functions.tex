@@ -1,28 +1,45 @@
 \section{Functions}
-    \subsection{Overview}
-        Functions can be defined in Democritus to return one or no data type.  Functions are evaluated via eager evaluation and the function implementation must directly follow the function header. The syntax is reminiscent of Scala, although Democritus doesn't support implied returns.
-        \vspace{5mm}
-        \noindent A function appears in the form:
-        
+    \subsection{Overview and Grammar}
+        Functions can be defined in Democritus to return one or no data type.  Functions are evaluated via eager (applicative-order) evaluation and the function implementation must directly follow the function header. The grammar for function declarations is as follows: 
+
+        \begin{verbatim}
+fdecl:
+   FUNCTION ID LPAREN formals_opt RPAREN typ LBRACE vdecl_list stmt_list RBRACE 
+
+formals_opt:
+    /* nothing */
+  | formal_list  
+
+formal_list:
+    ID typ                
+  | formal_list COMMA ID typ 
+        \end{verbatim}
+
+        \noindent All functions require \texttt{return} statements at the end, and must return an expression of the same type as the function. \texttt{void} functions may simply terminate with an empty \texttt{return} statement. 
+    
+
         \begin{lstlisting}
-function [function name]([formal_arg type, ... ]) type {
+    }
+function function_name([formal_arg type, ... ]) type_r {
+    
     [function implementation]
-    return [variable of return type]
+    return [variable of type type_r]
 }
         \end{lstlisting}
 
-        \noindent \textbf{Note}: all functions need \texttt{return} statements at the end (no falling off the end). A void \texttt{return} is simply a return with nothing following it.
 
-        \vspace{5mm}
-        \noindent Functions may be recursive and call themselves:
+    \subsection{Calling and Recursion}
+
+        Functions may be recursive and call themselves:
 
         \begin{lstlisting}
 function recursive_func(i int) void {
+
     if (i < 0) {
         return;
     } else {
-        print “hi”;
-        recursive_fun(i-1);
+        print(“hi”);
+        recursive_func(i-1);    // Call ourselves again.
     }
 }
         \end{lstlisting}
@@ -33,14 +50,7 @@ function recursive_func(i int) void {
 
 function main() void{
     recursive_func(3);
-    return;
+    return;                     // Return nothing for void.
 }
         \end{lstlisting}
 
-
-    \subsection{Built-in Functions}
-        A handful of functions are natively built into Democritus for user flexibility and ease of usage. There are:
-        \begin{itemize}
-            \item print(s string) takes in a string (standard library functions will convert from other data types to strings)
-            \item thread(f function, [arg1 type, arg2 type, ...]) takes in function and function args
-        \end{itemize}

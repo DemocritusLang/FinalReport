@@ -1,5 +1,40 @@
+\section{Variable Declarations}
+
+  \medskip \noindent
+  In Democritus, local variables must be declared at the top of each function, before being later assigned. 
+
+      \subsection{Variable Declaration}
+        Democritus requires all named variables to be declared with its type at the top of each function. Named variables are declared with the \texttt{let [ID] type} syntax. Assignment to these variables may then be done with \texttt{=}.
+        
+        \bigskip \noindent 
+        The grammar for variable declarations is as follows: 
+        \begin{verbatim}
+vdecl:
+  LET ID typ SEMI 
+
+typ:
+    INT       
+  | BOOL      
+  | VOID      
+  | STRTYPE   
+  | STRUCT ID 
+  | VOIDSTAR  
+  | STAR %prec POINTER typ 
+        \end{verbatim}
+
+    \subsection{Struct Declaration}
+      Structs are defined at the global scope, and can then be declared as variables. The global definitions are as follows: 
+
+      \begin{verbatim}
+sdecl:
+    STRUCT ID LBRACE vdecl_list RBRACE
+
+vdecl_list:
+  | vdecl_list vdecl
+      \end{verbatim}
+
 \section{Expressions and Operators}
-  In the grammars shown in this section and all subsequent sections, all terminals are expressed in uppercase and all nonterminals are kept lowercase. 
+
 
 	\subsection{Expressions}
     Expressions may be any of the following:
@@ -126,15 +161,15 @@ expr:
   .
   .
   .
-  | ID LPAREN actuals_opt RPAREN { Call($1, $3) }    (* Function call *)
+  | ID LPAREN actuals_opt RPAREN   (* Function call *)
 
 actuals_opt:
-  /* nothing *?   { [] }
-  |  actuals_list { List.rev $1 }
+  /* nothing *?   
+  |  actuals_list 
 
 actuals_list:
-     expr        { [$1] }
-  |  actuals_list COMMA expr { $3 :: $1 }
+     expr        
+  |  actuals_list COMMA expr 
     \end{verbatim}
 
 

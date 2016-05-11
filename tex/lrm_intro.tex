@@ -1,0 +1,105 @@
+\section{Introduction}
+    In the grammars shown in this reference manual, all terminals are expressed in uppercase and all nonterminals are kept lowercase. The Lexical Conventions section will detail terminals (also known as tokens). 
+
+\section{Structure of a Democritus Program}
+    
+    The full grammar of a program is as follows:
+
+    \begin{verbatim}
+program:
+  decls EOF 
+
+decls:
+   /* nothing */ 
+ | decls vdecl 
+ | decls fdecl 
+ | decls sdecl 
+
+fdecl:
+   FUNCTION ID LPAREN formals_opt RPAREN typ LBRACE vdecl_list stmt_list RBRACE
+
+formals_opt:
+    /* nothing */ 
+  | formal_list   
+
+formal_list:
+    ID typ                
+  | formal_list COMMA ID typ 
+
+typ:
+    INT 
+  | FLOAT 
+  | BOOL 
+  | VOID 
+  | STRTYPE 
+  | STRUCT ID
+  | VOIDSTAR
+  | STAR %prec POINTER typ
+
+vdecl_list:
+    /* nothing */    
+  | vdecl_list vdecl 
+
+vdecl:
+   LET ID typ SEMI 
+
+sdecl:
+    STRUCT ID LBRACE vdecl_list RBRACE
+
+stmt_list:
+    /* nothing */ 
+  | stmt_list stmt 
+
+stmt:
+    expr SEMI 
+  | RETURN SEMI 
+  | RETURN expr SEMI 
+  | LBRACE stmt_list RBRACE
+  | IF LPAREN expr RPAREN stmt %prec NOELSE 
+  | IF LPAREN expr RPAREN stmt ELSE stmt   
+  | FOR LPAREN expr_opt SEMI expr SEMI expr_opt RPAREN stmt
+  | FOR LPAREN expr RPAREN stmt 
+
+expr_opt:
+    /* nothing */ 
+  | expr         
+
+expr:
+    LITERAL       
+  | FLOATLITERAL     
+  | TRUE          
+  | FALSE            
+  | ID            
+  | STRING      
+  | expr PLUS   expr             
+  | expr MINUS  expr 
+  | expr STAR   expr 
+  | expr DIVIDE expr 
+  | expr MOD    expr 
+  | expr EQ     expr 
+  | expr NEQ    expr 
+  | expr LT     expr 
+  | expr LEQ    expr 
+  | expr GT     expr 
+  | expr GEQ    expr 
+  | expr AND    expr 
+  | expr OR     expr
+  | expr DOT    ID                
+  | expr DOT    ID ASSIGN expr    
+  | MINUS expr  %prec NEG         
+  | STAR expr   %prec DEREF      
+  | REF expr                      
+  | NOT expr                   
+  | ID ASSIGN expr  
+  | ID LPAREN actuals_opt RPAREN
+  | LPAREN expr RPAREN           
+
+actuals_opt:
+    /* nothing */ 
+  | actuals_list  
+
+actuals_list:
+    expr                 
+  | actuals_list COMMA expr 
+    \end{verbatim}
+
