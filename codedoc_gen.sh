@@ -25,4 +25,4 @@ for filename in $C_FILES; do
     echo "\\end{lstlisting}" >> $TEX_FILE
 done
 
-sed -i 's/_/\\_/g' $TEX_FILE
+#sed -i 's/_/\\_/g' $TEX_FILE

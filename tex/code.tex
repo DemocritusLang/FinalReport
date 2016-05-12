@@ -5,23 +5,23 @@
 (* Top-level of the MicroC compiler: scan & parse the input,
    check the resulting AST, generate LLVM IR, and dump the module *)
 
-type action = Ast | LLVM\_IR | Compile
+type action = Ast | LLVM_IR | Compile
 
-let \_ =
+let _ =
   let action = if Array.length Sys.argv > 1 then
     List.assoc Sys.argv.(1) [ ("-a", Ast);	(* Print the AST only *)
-			      ("-l", LLVM\_IR);  (* Generate LLVM, don't check *)
+			      ("-l", LLVM_IR);  (* Generate LLVM, don't check *)
 			      ("-c", Compile) ] (* Generate, check LLVM IR *)
   else Compile in
-  let lexbuf = Lexing.from\_channel stdin in
+  let lexbuf = Lexing.from_channel stdin in
   let ast = Parser.program Scanner.token lexbuf in
   Semant.check ast;
   match action with
-    Ast -> print\_string (Ast.string\_of\_program ast)
-  | LLVM\_IR -> print\_string (Llvm.string\_of\_llmodule (Codegen.translate ast))
+    Ast -> print_string (Ast.string_of_program ast)
+  | LLVM_IR -> print_string (Llvm.string_of_llmodule (Codegen.translate ast))
   | Compile -> let m = Codegen.translate ast in
-    Llvm\_analysis.assert\_valid\_module m;
-    print\_string (Llvm.string\_of\_llmodule m)
+    Llvm_analysis.assert_valid_module m;
+    print_string (Llvm.string_of_llmodule m)
 \end{lstlisting}
 \section{scanner.mll}
 \begin{lstlisting}{ocaml}
@@ -58,8 +58,6 @@ rule token = parse
 | "&&"     { AND }
 | "||"     { OR }
 | "!"      { NOT }
-| "["      { LEFTBR }
-| "]"      { RIGHTBR }
 | "if"     { IF }
 | "else"   { ELSE }
 | "for"    { FOR }
@@ -74,41 +72,41 @@ rule token = parse
 | "*void"  {VOIDSTAR }
 | "false"  { FALSE }
 | "function" { FUNCTION }
-| "cast"   { CAST }
-| "to"     { TO }
-| "set"    { SET }
+| "cast" { CAST }
+| "to" { TO }
+| "set" { SET }
 | "let"      { LET }
-| ['0'-'9']+['.']['0'-'9']+ as lxm { FLOATLITERAL(float\_of\_string lxm) }
-| ['0'-'9']+ as lxm { LITERAL(int\_of\_string lxm) }
-| ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '\_']* as lxm { ID(lxm) }
-| '"'      { read\_string (Buffer.create 17) lexbuf }
+| ['0'-'9']+['.']['0'-'9']+ as lxm { FLOATLITERAL(float_of_string lxm) }
+| ['0'-'9']+ as lxm { LITERAL(int_of_string lxm) }
+| ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']* as lxm { ID(lxm) }
+| '"'      { read_string (Buffer.create 17) lexbuf }
 | eof { EOF }
-| \_ as char { raise (Failure("illegal character " ^ Char.escaped char)) }
+| _ as char { raise (Failure("illegal character " ^ Char.escaped char)) }
 
 and comment = parse
   "\n" { token lexbuf }
-  | \_  { comment lexbuf }
+  | _  { comment lexbuf }
 
 and multicomment = parse
   "*/" { token lexbuf }
-| \_    { multicomment lexbuf }
+| _    { multicomment lexbuf }
 
 (* From: realworldocaml.org/v1/en/html/parsing-with-ocamllex-and-menhir.html *)
-and read\_string buf =
+and read_string buf =
   parse
   | '"'       { STRING (Buffer.contents buf) }
-  | '\\' '/'  { Buffer.add\_char buf '/'; read\_string buf lexbuf }
-  | '\\' '\\' { Buffer.add\_char buf '\\'; read\_string buf lexbuf }
-  | '\\' 'b'  { Buffer.add\_char buf '\b'; read\_string buf lexbuf }
-  | '\\' 'f'  { Buffer.add\_char buf '\012'; read\_string buf lexbuf }
-  | '\\' 'n'  { Buffer.add\_char buf '\n'; read\_string buf lexbuf }
-  | '\\' 'r'  { Buffer.add\_char buf '\r'; read\_string buf lexbuf }
-  | '\\' 't'  { Buffer.add\_char buf '\t'; read\_string buf lexbuf }
+  | '\\' '/'  { Buffer.add_char buf '/'; read_string buf lexbuf }
+  | '\\' '\\' { Buffer.add_char buf '\\'; read_string buf lexbuf }
+  | '\\' 'b'  { Buffer.add_char buf '\b'; read_string buf lexbuf }
+  | '\\' 'f'  { Buffer.add_char buf '\012'; read_string buf lexbuf }
+  | '\\' 'n'  { Buffer.add_char buf '\n'; read_string buf lexbuf }
+  | '\\' 'r'  { Buffer.add_char buf '\r'; read_string buf lexbuf }
+  | '\\' 't'  { Buffer.add_char buf '\t'; read_string buf lexbuf }
   | [^ '"' '\\']+
-    { Buffer.add\_string buf (Lexing.lexeme lexbuf);
-      read\_string buf lexbuf
+    { Buffer.add_string buf (Lexing.lexeme lexbuf);
+      read_string buf lexbuf
     }
-  | \_ { raise (Failure("Illegal string character: " ^ Lexing.lexeme lexbuf)) }
+  | _ { raise (Failure("Illegal string character: " ^ Lexing.lexeme lexbuf)) }
   | eof { raise (Failure("String is not terminated")) }
 \end{lstlisting}
 \section{parser.mly}
@@ -119,12 +117,11 @@ and read\_string buf =
 %{
 open Ast;;
 
-let first (a,\_,\_) = a;;
-let second (\_,b,\_) = b;;
-let third (\_,\_,c) = c;;
+let first (a,_,_) = a;;
+let second (_,b,_) = b;;
+let third (_,_,c) = c;;
 %}
 
-%token LEFTBR RIGHTBR
 %token COLON SEMI LPAREN RPAREN LBRACE RBRACE COMMA
 %token PLUS MINUS STAR DIVIDE MOD ASSIGN NOT DOT DEREF REF
 %token EQ NEQ LT LEQ GT GEQ TRUE FALSE AND OR
@@ -163,20 +160,20 @@ decls:
  | decls sdecl { first $1, second $1, ($2 :: third $1) }
 
 fdecl:
-   FUNCTION ID LPAREN formals\_opt RPAREN typ LBRACE vdecl\_list stmt\_list RBRACE
+   FUNCTION ID LPAREN formals_opt RPAREN typ LBRACE vdecl_list stmt_list RBRACE
      { { typ = $6;
 	 fname = $2;
 	 formals = $4;
 	 locals = List.rev $8;
 	 body = List.rev $9 } }
 
-formals\_opt:
+formals_opt:
     /* nothing */ { [] }
-  | formal\_list   { List.rev $1 }
+  | formal_list   { List.rev $1 }
 
-formal\_list:
+formal_list:
     ID typ                   { [($2,$1)] }
-  | formal\_list COMMA ID typ { ($4,$3) :: $1 }
+  | formal_list COMMA ID typ { ($4,$3) :: $1 }
 
 typ:
     INT { Int }
@@ -188,35 +185,35 @@ typ:
   | VOIDSTAR { Voidstar }
   | STAR %prec POINTER typ { PointerType ($2) }
 
-vdecl\_list:
+vdecl_list:
     /* nothing */    { [] }
-  | vdecl\_list vdecl { $2 :: $1 }
+  | vdecl_list vdecl { $2 :: $1 }
 
 vdecl:
    LET ID typ SEMI { ($3, $2) }
 
 sdecl:
-    STRUCT ID LBRACE vdecl\_list RBRACE
+    STRUCT ID LBRACE vdecl_list RBRACE
       { { sname = $2;
       sformals = $4;
       } }
 
-stmt\_list:
+stmt_list:
     /* nothing */  { [] }
-  | stmt\_list stmt { $2 :: $1 }
+  | stmt_list stmt { $2 :: $1 }
 
 stmt:
     expr SEMI { Expr $1 }
   | RETURN SEMI { Return Noexpr }
   | RETURN expr SEMI { Return $2 }
-  | LBRACE stmt\_list RBRACE { Block(List.rev $2) }
+  | LBRACE stmt_list RBRACE { Block(List.rev $2) }
   | IF LPAREN expr RPAREN stmt %prec NOELSE { If($3, $5, Block([])) }
   | IF LPAREN expr RPAREN stmt ELSE stmt    { If($3, $5, $7) }
-  | FOR LPAREN expr\_opt SEMI expr SEMI expr\_opt RPAREN stmt
+  | FOR LPAREN expr_opt SEMI expr SEMI expr_opt RPAREN stmt
      { For($3, $5, $7, $9) }
   | FOR LPAREN expr RPAREN stmt { While($3, $5) }
 
-expr\_opt:
+expr_opt:
     /* nothing */ { Noexpr }
   | expr          { $1 }
 
@@ -226,12 +223,12 @@ expr:
   | TRUE             { BoolLit(true) }
   | FALSE            { BoolLit(false) }
   | ID               { Id($1) }
-  | STRING	     { MyStringLit($1) }
+  |STRING	     { MyStringLit($1) } 
   | expr PLUS   expr { Binop($1, Add,   $3) }
   | expr MINUS  expr { Binop($1, Sub,   $3) }
-  | expr STAR  expr  { Binop($1, Mult,  $3) }
+  | expr STAR  expr { Binop($1, Mult,  $3) }
   | expr DIVIDE expr { Binop($1, Div,   $3) }
-  | expr MOD expr    { Binop($1, Mod,   $3) }
+  | expr MOD expr { Binop($1, Mod,   $3) }
   | expr EQ     expr { Binop($1, Equal, $3) }
   | expr NEQ    expr { Binop($1, Neq,   $3) }
   | expr LT     expr { Binop($1, Less,  $3) }
@@ -241,23 +238,23 @@ expr:
   | expr AND    expr { Binop($1, And,   $3) }
   | expr OR     expr { Binop($1, Or,    $3) }
   | expr DOT    ID   { Dotop($1, $3) }
-  | expr LEFTBR LITERAL RIGHTBR { ArrayRef($1, $3) }
+/*  | expr DOT    ID ASSIGN expr { SAssign($1, $3, $5) } */
   | CAST expr TO typ { Castop($4, $2) }
   | MINUS expr %prec NEG { Unop(Neg, $2) }
   | STAR expr %prec DEREF { Unop(Deref, $2) }
   | REF expr { Unop(Ref, $2) }
   | NOT expr         { Unop(Not, $2) }
   | expr ASSIGN expr   { Assign($1, $3) }
-  | ID LPAREN actuals\_opt RPAREN { Call($1, $3) }
+  | ID LPAREN actuals_opt RPAREN { Call($1, $3) }
   | LPAREN expr RPAREN { $2 }
 
-actuals\_opt:
+actuals_opt:
     /* nothing */ { [] }
-  | actuals\_list  { List.rev $1 }
+  | actuals_list  { List.rev $1 }
 
-actuals\_list:
+actuals_list:
     expr                    { [$1] }
-  | actuals\_list COMMA expr { $3 :: $1 }
+  | actuals_list COMMA expr { $3 :: $1 }
 \end{lstlisting}
 \section{semant.ml}
 \begin{lstlisting}{ocaml}
@@ -277,79 +274,79 @@ Check each global variable, then check each function *)
 let check (globals, functions, structs) =
 
 (* Raise an exception if the given list has a duplicate *)
-  let report\_duplicate exceptf list =
+  let report_duplicate exceptf list =
     let rec helper = function
-	n1 :: n2 :: \_ when n1 = n2 -> raise (Failure (exceptf n1))
-      | \_ :: t -> helper t
+	n1 :: n2 :: _ when n1 = n2 -> raise (Failure (exceptf n1))
+      | _ :: t -> helper t
       | [] -> ()
     in helper (List.sort compare list)
   in
 
   (*Raise an exception if there is a recursive struct dependency*)
   
-  let find\_sdecl\_from\_sname struct\_type\_name =
-    try List.find (fun s-> s.sname= struct\_type\_name) structs 
-      with Not\_found -> raise (Failure("Struct of name " ^ struct\_type\_name ^ "not found.")) 
+  let find_sdecl_from_sname struct_type_name =
+    try List.find (fun s-> s.sname= struct_type_name) structs 
+      with Not_found -> raise (Failure("Struct of name " ^ struct_type_name ^ "not found.")) 
   in
-  let rec check\_recursive\_struct\_helper sdecl seen\_set =
-    let check\_if\_repeat struct\_type\_name =
-      let found = StringSet.mem struct\_type\_name seen\_set in
+  let rec check_recursive_struct_helper sdecl seen_set =
+    let check_if_repeat struct_type_name =
+      let found = StringSet.mem struct_type_name seen_set in
       if found then raise (Failure ("recursive struct definition"))
-      else check\_recursive\_struct\_helper (find\_sdecl\_from\_sname struct\_type\_name)  (StringSet.add struct\_type\_name seen\_set)
+      else check_recursive_struct_helper (find_sdecl_from_sname struct_type_name)  (StringSet.add struct_type_name seen_set)
     in
-    let is\_struct\_field = function
-      (StructType s, \_) -> check\_if\_repeat s
-     | \_ -> () 
+    let is_struct_field = function
+      (StructType s, _) -> check_if_repeat s
+     | _ -> () 
     in
-    List.iter (is\_struct\_field) sdecl.sformals
+    List.iter (is_struct_field) sdecl.sformals
   in
-  let check\_recursive\_struct sdecl =
-     check\_recursive\_struct\_helper sdecl StringSet.empty    
+  let check_recursive_struct sdecl =
+     check_recursive_struct_helper sdecl StringSet.empty    
   in
-  let \_ = List.map check\_recursive\_struct structs
+  let _ = List.map check_recursive_struct structs
   in
   (* Raise an exception if a given binding is to a void type *)
-  let check\_not\_void exceptf = function
+  let check_not_void exceptf = function
       (Void, n) -> raise (Failure (exceptf n))
-    | \_ -> ()
+    | _ -> ()
   in
   
   (* Raise an exception of the given rvalue type cannot be assigned to
      the given lvalue type *)
-  let check\_assign lvaluet rvaluet err =
-	if (String.compare (string\_of\_typ lvaluet) (string\_of\_typ rvaluet)) == 0
+  let check_assign lvaluet rvaluet err =
+	if (String.compare (string_of_typ lvaluet) (string_of_typ rvaluet)) == 0
 	then lvaluet
 	else raise err
      (*if lvaluet == rvaluet then lvaluet else raise err*)
   in
 
-  let match\_struct\_to\_accessor a b = 
+  let match_struct_to_accessor a b = 
     let  s1 = try List.find (fun s-> s.sname=a) structs 
-      with Not\_found -> raise (Failure("Struct of name " ^ a ^ "not found.")) in
+      with Not_found -> raise (Failure("Struct of name " ^ a ^ "not found.")) in
     try fst( List.find (fun s-> snd(s)=b) s1.sformals) with
-	Not\_found -> raise (Failure("Struct " ^ a ^ " does not have field " ^ b))
+	Not_found -> raise (Failure("Struct " ^ a ^ " does not have field " ^ b))
   in
 
-  let check\_access lvaluet rvalues =
+  let check_access lvaluet rvalues =
      match lvaluet with
-       StructType s -> match\_struct\_to\_accessor s rvalues
-       | \_ -> raise (Failure(string\_of\_typ lvaluet ^ " is not a struct"))
+       StructType s -> match_struct_to_accessor s rvalues
+       | _ -> raise (Failure(string_of_typ lvaluet ^ " is not a struct"))
 	
   in
 
   (**** Checking Global Variables ****)
 
-  List.iter (check\_not\_void (fun n -> "illegal void global " ^ n)) globals;
+  List.iter (check_not_void (fun n -> "illegal void global " ^ n)) globals;
    
-  report\_duplicate (fun n -> "duplicate global " ^ n) (List.map snd globals);
+  report_duplicate (fun n -> "duplicate global " ^ n) (List.map snd globals);
 
   (**** Checking Functions ****)
 
-  if List.mem "append\_strings" (List.map (fun fd -> fd.fname) functions)
-  then raise (Failure ("function append\_strings may not be defined")) else ();
+  if List.mem "append_strings" (List.map (fun fd -> fd.fname) functions)
+  then raise (Failure ("function append_strings may not be defined")) else ();
 
-  if List.mem "int\_to\_string" (List.map (fun fd -> fd.fname) functions)
-  then raise (Failure ("function int\_to\_string may not be defined")) else ();
+  if List.mem "int_to_string" (List.map (fun fd -> fd.fname) functions)
+  then raise (Failure ("function int_to_string may not be defined")) else ();
 
   if List.mem "print" (List.map (fun fd -> fd.fname) functions)
   then raise (Failure ("function print may not be defined")) else ();
@@ -357,8 +354,8 @@ let check (globals, functions, structs) =
   if List.mem "thread" (List.map (fun fd -> fd.fname) functions)
   then raise (Failure ("function thread may not be defined")) else ();
 
-  if List.mem "exec\_prog" (List.map (fun fd -> fd.fname) functions)
-  then raise (Failure ("function exec\_prog may not be defined")) else ();
+  if List.mem "exec_prog" (List.map (fun fd -> fd.fname) functions)
+  then raise (Failure ("function exec_prog may not be defined")) else ();
 
   if List.mem "free" (List.map (fun fd -> fd.fname) functions)
   then raise (Failure ("function free may not be defined")) else ();
@@ -384,24 +381,24 @@ let check (globals, functions, structs) =
   if List.mem "sleep" (List.map (fun fd -> fd.fname) functions)
   then raise (Failure ("function sleep may not be defined")) else ();
  
- if List.mem "request\_from\_server" (List.map (fun fd -> fd.fname) functions)
-  then raise (Failure ("function request\_from\_server may not be defined")) else ();
+ if List.mem "request_from_server" (List.map (fun fd -> fd.fname) functions)
+  then raise (Failure ("function request_from_server may not be defined")) else ();
 
   if List.mem "memset" (List.map (fun fd -> fd.fname) functions)
   then raise (Failure ("function memset may not be defined")) else ();
 
-  report\_duplicate (fun n -> "duplicate function " ^ n)
+  report_duplicate (fun n -> "duplicate function " ^ n)
     (List.map (fun fd -> fd.fname) functions);
 
   (* Function declaration for a named function *)
-  let built\_in\_decls\_funcs = [
-      { typ = Void; fname = "print\_int"; formals = [(Int, "x")];
+  let built_in_decls_funcs = [
+      { typ = Void; fname = "print_int"; formals = [(Int, "x")];
       locals = []; body = [] };
 
       { typ = Void; fname = "printb"; formals = [(Bool, "x")];
       locals = []; body = [] }; 
 
-      { typ = Void; fname = "print\_float"; formals = [(Float, "x")];
+      { typ = Void; fname = "print_float"; formals = [(Float, "x")];
       locals = []; body = [] }; 
 
       { typ = Void; fname = "thread"; formals = [(MyString, "func"); (MyString, "arg"); (Int, "nthreads")]; locals = []; body = [] };
@@ -424,77 +421,77 @@ let check (globals, functions, structs) =
       
       { typ = Int; fname = "memset"; formals =  [(MyString, "s"); (Int, "val"); (Int, "size")]; locals = []; body = [] };
 
-      { typ = MyString; fname = "request\_from\_server"; formals = [(MyString, "link")]; locals = []; body = [] } 
+      { typ = MyString; fname = "request_from_server"; formals = [(MyString, "link")]; locals = []; body = [] } 
 ;
 
-      { typ = Int; fname = "exec\_prog"; formals = [(MyString, "arg1"); (MyString, "arg2"); (MyString, "arg3") ]; locals = []; body = [] };
+      { typ = Int; fname = "exec_prog"; formals = [(MyString, "arg1"); (MyString, "arg2"); (MyString, "arg3") ]; locals = []; body = [] };
 
       { typ = Void; fname = "free"; formals = [(MyString, "tofree")]; locals = []; body = [] }
 ;
 
-      { typ = Void; fname = "append\_strings"; formals = [(MyString, "str1"); (MyString, "str2")]; locals = []; body = [] };
+      { typ = Void; fname = "append_strings"; formals = [(MyString, "str1"); (MyString, "str2")]; locals = []; body = [] };
  
      
-      { typ = Void; fname = "int\_to\_string"; formals = [(Int, "n"); (MyString, "buf")]; locals = []; body = [] }
+      { typ = Void; fname = "int_to_string"; formals = [(Int, "n"); (MyString, "buf")]; locals = []; body = [] }
 ]
 
   in
 
- let built\_in\_decls\_names = [ "print\_int"; "printb"; "print\_float"; "thread"; "malloc"; "open"; "close"; "read"; "write"; "lseek"; "sleep"; "memset"; "request\_from\_server"; "exec\_prog"; "free"; "append\_strings"; "int\_to\_string" ]
+ let built_in_decls_names = [ "print_int"; "printb"; "print_float"; "thread"; "malloc"; "open"; "close"; "read"; "write"; "lseek"; "sleep"; "memset"; "request_from_server"; "exec_prog"; "free"; "append_strings"; "int_to_string" ]
 
   in
 
-  let built\_in\_decls = List.fold\_right2 (StringMap.add)
-                        built\_in\_decls\_names
-                        built\_in\_decls\_funcs
+  let built_in_decls = List.fold_right2 (StringMap.add)
+                        built_in_decls_names
+                        built_in_decls_funcs
                         (StringMap.singleton "print"
                                 { typ = Void; fname = "print"; formals = [(MyString, "x")];
                                 locals = []; body = [] })
 
   in
 
-  let function\_decls = List.fold\_left (fun m fd -> StringMap.add fd.fname fd m)
-                         built\_in\_decls functions
+  let function_decls = List.fold_left (fun m fd -> StringMap.add fd.fname fd m)
+                         built_in_decls functions
 
   in
 
-  let function\_decl s = try StringMap.find s function\_decls
-       with Not\_found -> raise (Failure ("unrecognized function " ^ s))
+  let function_decl s = try StringMap.find s function_decls
+       with Not_found -> raise (Failure ("unrecognized function " ^ s))
   in
 
-  let \_ = function\_decl "main" in (* Ensure "main" is defined *)
+  let _ = function_decl "main" in (* Ensure "main" is defined *)
 
-  let check\_function func =
+  let check_function func =
 
-    List.iter (check\_not\_void (fun n -> "illegal void formal " ^ n ^
+    List.iter (check_not_void (fun n -> "illegal void formal " ^ n ^
       " in " ^ func.fname)) func.formals;
 
-    report\_duplicate (fun n -> "duplicate formal " ^ n ^ " in " ^ func.fname)
+    report_duplicate (fun n -> "duplicate formal " ^ n ^ " in " ^ func.fname)
       (List.map snd func.formals);
 
-    List.iter (check\_not\_void (fun n -> "illegal void local " ^ n ^
+    List.iter (check_not_void (fun n -> "illegal void local " ^ n ^
       " in " ^ func.fname)) func.locals;
 
-    report\_duplicate (fun n -> "duplicate local " ^ n ^ " in " ^ func.fname)
+    report_duplicate (fun n -> "duplicate local " ^ n ^ " in " ^ func.fname)
       (List.map snd func.locals);
 
     (* Type of each variable (global, formal, or local *)
-    let symbols = List.fold\_left (fun m (t, n) -> StringMap.add n t m)
+    let symbols = List.fold_left (fun m (t, n) -> StringMap.add n t m)
 	StringMap.empty (globals @ func.formals @ func.locals )
     in
 
-    let type\_of\_identifier s =
+    let type_of_identifier s =
       try StringMap.find s symbols
-      with Not\_found -> raise (Failure ("undeclared identifier " ^ s))
+      with Not_found -> raise (Failure ("undeclared identifier " ^ s))
     in
 
     (* Return the type of an expression or throw an exception *)
     let rec expr = function
-	Literal \_ -> Int
-      | FloatLiteral \_ -> Float
-      | BoolLit \_ -> Bool
-      | MyStringLit \_ -> MyString
-      | Id s -> type\_of\_identifier s
+	Literal _ -> Int
+      | FloatLiteral _ -> Float
+      | BoolLit _ -> Bool
+      | MyStringLit _ -> MyString
+      | Id s -> type_of_identifier s
       | Binop(e1, op, e2) as e -> let t1 = expr e1 and t2 = expr e2 in
 	(match op with
           Add | Sub | Mult | Div  when t1 = Int && t2 = Int -> Int
@@ -503,85 +500,81 @@ let check (globals, functions, structs) =
 	| Equal | Neq when t1 = t2 -> Bool
 	| Less | Leq | Greater | Geq when t1 = Int && t2 = Int -> Bool
 	| And | Or when t1 = Bool && t2 = Bool -> Bool
-        | \_ -> raise (Failure ("illegal binary operator " ^
-              string\_of\_typ t1 ^ " " ^ string\_of\_op op ^ " " ^
-              string\_of\_typ t2 ^ " in " ^ string\_of\_expr e))
+        | _ -> raise (Failure ("illegal binary operator " ^
+              string_of_typ t1 ^ " " ^ string_of_op op ^ " " ^
+              string_of_typ t2 ^ " in " ^ string_of_expr e))
         )
       | Dotop(e1, field) -> let lt = expr e1 in
-       	 check\_access (lt) (field)
-      | Castop(t, \_) -> (*check later*) t
-      | ArrayRef (e, idx) -> let t = expr e in
-         (match t with
-                PointerType s -> s
-		| \_ -> raise (Failure("cannot dereference a " ^ string\_of\_typ t)) )
+       	 check_access (lt) (field)
+      | Castop(t, _) -> (*check later*) t
       | Unop(op, e) as ex -> let t = expr e in
 	 (match op with
 	   Neg when t = Int -> Int
 	 | Not when t = Bool -> Bool
          | Deref -> (match t with
 		PointerType s -> s
-		| \_ -> raise (Failure("cannot dereference a " ^ string\_of\_typ t)) )
+		| _ -> raise (Failure("cannot dereference a " ^ string_of_typ t)) )
          | Ref -> PointerType(t) 
-	 | \_ -> raise (Failure ("illegal unary operator " ^ string\_of\_uop op ^
-	  		   string\_of\_typ t ^ " in " ^ string\_of\_expr ex)))
+	 | _ -> raise (Failure ("illegal unary operator " ^ string_of_uop op ^
+	  		   string_of_typ t ^ " in " ^ string_of_expr ex)))
       | Noexpr -> Void
-     | Call(fname, actuals) as call -> let fd = function\_decl fname in
+     | Call(fname, actuals) as call -> let fd = function_decl fname in
      
          if List.length actuals != List.length fd.formals then
-           raise (Failure ("expecting " ^ string\_of\_int
-             (List.length fd.formals) ^ " arguments in " ^ string\_of\_expr call))
+           raise (Failure ("expecting " ^ string_of_int
+             (List.length fd.formals) ^ " arguments in " ^ string_of_expr call))
          else
-           List.iter2 (fun (ft, \_) e -> let et = expr e in
-              ignore (check\_assign ft et
-                (Failure ("illegal actual argument found " ^ string\_of\_typ et ^
-                " expected " ^ string\_of\_typ ft ^ " in " ^ string\_of\_expr e))))
+           List.iter2 (fun (ft, _) e -> let et = expr e in
+              ignore (check_assign ft et
+                (Failure ("illegal actual argument found " ^ string_of_typ et ^
+                " expected " ^ string_of_typ ft ^ " in " ^ string_of_expr e))))
              fd.formals actuals;
            fd.typ
       | Assign(e1, e2) as ex ->
 	(match e1 with
 		Id s -> 
- 			let lt = type\_of\_identifier s and rt = expr e2 in
-     			check\_assign (lt) (rt) (Failure ("illegal assignment " ^ string\_of\_typ lt ^ " = " ^
-                           string\_of\_typ rt ^ " in " ^ string\_of\_expr ex))
-		|Unop(op, \_) ->
+ 			let lt = type_of_identifier s and rt = expr e2 in
+     			check_assign (lt) (rt) (Failure ("illegal assignment " ^ string_of_typ lt ^ " = " ^
+                           string_of_typ rt ^ " in " ^ string_of_expr ex))
+		|Unop(op, _) ->
 			(match op with 
 				Deref -> expr e2
-				|\_ -> raise(Failure("whatever"))
+				|_ -> raise(Failure("whatever"))
 			)
-		|Dotop (\_, \_) -> expr e2
-		| \_ -> raise (Failure("whatever"))
+		|Dotop (_, _) -> expr e2
+		| _ -> raise (Failure("whatever"))
 	)
 
      in
 
-    let check\_bool\_expr e = if expr e != Bool
-     then raise (Failure ("expected Boolean expression in " ^ string\_of\_expr e))
+    let check_bool_expr e = if expr e != Bool
+     then raise (Failure ("expected Boolean expression in " ^ string_of_expr e))
      else () in
 
     (* Verify a statement or throw an exception *)
     let rec stmt = function
-	Block sl -> let rec check\_block = function
-           [Return \_ as s] -> stmt s
-         | Return \_ :: \_ -> raise (Failure "nothing may follow a return")
-         | Block sl :: ss -> check\_block (sl @ ss)
-         | s :: ss -> stmt s ; check\_block ss
+	Block sl -> let rec check_block = function
+           [Return _ as s] -> stmt s
+         | Return _ :: _ -> raise (Failure "nothing may follow a return")
+         | Block sl :: ss -> check_block (sl @ ss)
+         | s :: ss -> stmt s ; check_block ss
          | [] -> ()
-        in check\_block sl
+        in check_block sl
       | Expr e -> ignore (expr e)
       | Return e -> let t = expr e in if t = func.typ then () else
-         raise (Failure ("return gives " ^ string\_of\_typ t ^ " expected " ^
-                         string\_of\_typ func.typ ^ " in " ^ string\_of\_expr e))
+         raise (Failure ("return gives " ^ string_of_typ t ^ " expected " ^
+                         string_of_typ func.typ ^ " in " ^ string_of_expr e))
            
-      | If(p, b1, b2) -> check\_bool\_expr p; stmt b1; stmt b2
-      | For(e1, e2, e3, st) -> ignore (expr e1); check\_bool\_expr e2;
+      | If(p, b1, b2) -> check_bool_expr p; stmt b1; stmt b2
+      | For(e1, e2, e3, st) -> ignore (expr e1); check_bool_expr e2;
                                ignore (expr e3); stmt st
-      | While(p, s) -> check\_bool\_expr p; stmt s
+      | While(p, s) -> check_bool_expr p; stmt s
     in
 
     stmt (Block func.body)
    
   in
-  List.iter check\_function functions
+  List.iter check_function functions
 \end{lstlisting}
 \section{ast.ml}
 \begin{lstlisting}{ocaml}
@@ -589,7 +582,7 @@ let check (globals, functions, structs) =
 (* Abstract Syntax Tree and functions for printing it *)
 
 type op = Add | Sub | Mult | Div | Mod | Equal | Neq | Less | Leq | Greater | Geq |
-          And | Or
+          And | Or 
 
 type uop = Neg | Not | Deref | Ref
 
@@ -603,11 +596,11 @@ type expr =
   | BoolLit of bool
   | MyStringLit of string
   | Id of string
-  | ArrayRef of string * int
   | Binop of expr * op * expr
-  | Dotop of expr * string
+  | Dotop of expr * string 
   | Castop of typ * expr
   | Unop of uop * expr
+(*  | SAssign of expr * string * expr *)
   | Assign of expr * expr
   | Call of string * expr list
   | Noexpr
@@ -620,7 +613,7 @@ type stmt =
   | For of expr * expr * expr * stmt
   | While of expr * stmt
 
-type func\_decl = {
+type func_decl = {
     typ : typ;
     fname : string;
     formals : bind list;
@@ -628,17 +621,17 @@ type func\_decl = {
     body : stmt list;
   }
 
-type struct\_decl = {
+type struct_decl = {
     sname: string;
     sformals: bind list;
 
 }
 
-type program = bind list * func\_decl list * struct\_decl list
+type program = bind list * func_decl list * struct_decl list
 
 (* Pretty-printing functions *)
 
-let string\_of\_op = function
+let string_of_op = function
     Add -> "+"
   | Sub -> "-"
   | Mult -> "*"
@@ -653,13 +646,13 @@ let string\_of\_op = function
   | And -> "&&"
   | Or -> "||"
 
-let string\_of\_uop = function
+let string_of_uop = function
     Neg -> "-"
   | Not -> "!"
   | Deref -> "*"
   | Ref -> "&"
 
-let rec string\_of\_typ = function
+let rec string_of_typ = function
     Int -> "int"
   | Float -> "float"
   | Bool -> "bool"
@@ -667,55 +660,55 @@ let rec string\_of\_typ = function
   | MyString -> "string"
   | StructType(s) -> "struct" ^ s
   | Voidstar -> "voidstar"
-  | PointerType(s) -> "pointerof" ^ (string\_of\_typ s)
+  | PointerType(s) -> "pointerof" ^ (string_of_typ s)
 
-let rec string\_of\_expr = function
-    Literal(l) -> string\_of\_int l
-  | FloatLiteral(l) -> string\_of\_float l
+let rec string_of_expr = function
+    Literal(l) -> string_of_int l
+  | FloatLiteral(l) -> string_of_float l
   | BoolLit(true) -> "true"
   | BoolLit(false) -> "false"
   | MyStringLit(s) -> s
   | Id(s) -> s
-  | ArrayRef(s, l) -> s ^ "[" ^ string\_of\_int l ^ "]"
   | Binop(e1, o, e2) ->
-      string\_of\_expr e1 ^ " " ^ string\_of\_op o ^ " " ^ string\_of\_expr e2
-  | Unop(o, e) -> string\_of\_uop o ^ string\_of\_expr e
-  | Dotop(e1, e2) -> string\_of\_expr e1 ^ ". " ^ e2
-  | Castop(t, e) -> "(" ^ string\_of\_typ t ^ ")" ^ string\_of\_expr e
-  | Assign(v, e) -> string\_of\_expr v ^ " = " ^ string\_of\_expr e
+      string_of_expr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_expr e2
+  | Unop(o, e) -> string_of_uop o ^ string_of_expr e
+  | Dotop(e1, e2) -> string_of_expr e1 ^ ". " ^ e2
+  | Castop(t, e) -> "(" ^ string_of_typ t ^ ")" ^ string_of_expr e
+ (* | SAssign(e1, v, e2) -> string_of_expr(e1) ^ "." ^ v ^ " = " ^ string_of_expr e2 *)
+  | Assign(v, e) -> string_of_expr v ^ " = " ^ string_of_expr e
   | Call(f, el) ->
-      f ^ "(" ^ String.concat ", " (List.map string\_of\_expr el) ^ ")"
+      f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
   | Noexpr -> ""
 
-let rec string\_of\_stmt = function
+let rec string_of_stmt = function
     Block(stmts) ->
-      "{\n" ^ String.concat "" (List.map string\_of\_stmt stmts) ^ "}\n"
-  | Expr(expr) -> string\_of\_expr expr ^ ";\n";
-  | Return(expr) -> "return " ^ string\_of\_expr expr ^ ";\n";
-  | If(e, s, Block([])) -> "if (" ^ string\_of\_expr e ^ ")\n" ^ string\_of\_stmt s
-  | If(e, s1, s2) ->  "if (" ^ string\_of\_expr e ^ ")\n" ^
-      string\_of\_stmt s1 ^ "else\n" ^ string\_of\_stmt s2
+      "{\n" ^ String.concat "" (List.map string_of_stmt stmts) ^ "}\n"
+  | Expr(expr) -> string_of_expr expr ^ ";\n";
+  | Return(expr) -> "return " ^ string_of_expr expr ^ ";\n";
+  | If(e, s, Block([])) -> "if (" ^ string_of_expr e ^ ")\n" ^ string_of_stmt s
+  | If(e, s1, s2) ->  "if (" ^ string_of_expr e ^ ")\n" ^
+      string_of_stmt s1 ^ "else\n" ^ string_of_stmt s2
   | For(e1, e2, e3, s) ->
-      "for (" ^ string\_of\_expr e1  ^ " ; " ^ string\_of\_expr e2 ^ " ; " ^
-      string\_of\_expr e3  ^ ") " ^ string\_of\_stmt s
-  | While(e, s) -> "while (" ^ string\_of\_expr e ^ ") " ^ string\_of\_stmt s
+      "for (" ^ string_of_expr e1  ^ " ; " ^ string_of_expr e2 ^ " ; " ^
+      string_of_expr e3  ^ ") " ^ string_of_stmt s
+  | While(e, s) -> "while (" ^ string_of_expr e ^ ") " ^ string_of_stmt s
 
-let string\_of\_vdecl (t, id) = string\_of\_typ t ^ " " ^ id ^ ";\n"
+let string_of_vdecl (t, id) = string_of_typ t ^ " " ^ id ^ ";\n"
 
-let string\_of\_fdecl fdecl =
-  string\_of\_typ fdecl.typ ^ " " ^
+let string_of_fdecl fdecl =
+  string_of_typ fdecl.typ ^ " " ^
   fdecl.fname ^ "(" ^ String.concat ", " (List.map snd fdecl.formals) ^
   ")\n{\n" ^
-  String.concat "" (List.map string\_of\_vdecl fdecl.locals) ^
-  String.concat "" (List.map string\_of\_stmt fdecl.body) ^
+  String.concat "" (List.map string_of_vdecl fdecl.locals) ^
+  String.concat "" (List.map string_of_stmt fdecl.body) ^
   "}\n"
 
-let string\_of\_sdecl sdecl = sdecl.sname
+let string_of_sdecl sdecl = sdecl.sname
 
-let string\_of\_program (vars, funcs, structs) =
-  String.concat "" (List.map string\_of\_vdecl vars) ^ "\n" ^
-  String.concat "\n" (List.map string\_of\_fdecl funcs) ^ "\n" ^
-  String.concat "\n" (List.map string\_of\_sdecl structs)
+let string_of_program (vars, funcs, structs) =
+  String.concat "" (List.map string_of_vdecl vars) ^ "\n" ^
+  String.concat "\n" (List.map string_of_fdecl funcs) ^ "\n" ^
+  String.concat "\n" (List.map string_of_sdecl structs)
 \end{lstlisting}
 \section{codegen.ml}
 \begin{lstlisting}{ocaml}
@@ -724,484 +717,481 @@ module A = Ast
 module StringMap = Map.Make(String)
 
 let translate (globals, functions, structs) =
-  let context = L.global\_context () in
-  let the\_module = L.create\_module context "Democritus"
-  and i32\_t  = L.i32\_type  context
-(*  and i8\_t   = L.i8\_type   context *)
-  and i1\_t   = L.i1\_type   context
-  and void\_t = L.void\_type context
-  and ptr\_t  = L.pointer\_type (L.i8\_type (context)) 
-  and float\_t = L.double\_type context
+  let context = L.global_context () in
+  let the_module = L.create_module context "Democritus"
+  and i32_t  = L.i32_type  context
+(*  and i8_t   = L.i8_type   context *)
+  and i1_t   = L.i1_type   context
+  and void_t = L.void_type context
+  and ptr_t  = L.pointer_type (L.i8_type (context)) 
+  and float_t = L.double_type context
   in
 		
 
-	let struct\_types:(string, L.lltype) Hashtbl.t = Hashtbl.create 50 in
+	let struct_types:(string, L.lltype) Hashtbl.t = Hashtbl.create 50 in
 
-        let add\_empty\_named\_struct\_types sdecl =
-		let struct\_t = L.named\_struct\_type context sdecl.A.sname in
-		Hashtbl.add struct\_types sdecl.A.sname struct\_t
+        let add_empty_named_struct_types sdecl =
+		let struct_t = L.named_struct_type context sdecl.A.sname in
+		Hashtbl.add struct_types sdecl.A.sname struct_t
 	in
-	let \_  =
-		List.map add\_empty\_named\_struct\_types structs 
+	let _  =
+		List.map add_empty_named_struct_types structs 
 	in
 
-	let rec ltype\_of\_typ = function
-		A.Int -> i32\_t
-	|       A.Float -> float\_t
-	| 	A.Bool -> i1\_t
- 	|	A.Void -> void\_t
-	| 	A.StructType s ->  Hashtbl.find struct\_types s
-	|	A.MyString -> ptr\_t 
-	| 	A.Voidstar -> ptr\_t 
-	|	A.PointerType t -> L.pointer\_type (ltype\_of\_typ t) in 
-	let populate\_struct\_type sdecl = 
-		let struct\_t = Hashtbl.find struct\_types sdecl.A.sname in
-		let type\_list = Array.of\_list(List.map (fun(t, \_) -> ltype\_of\_typ t) sdecl.A.sformals) in
-		L.struct\_set\_body struct\_t type\_list true
+	let rec ltype_of_typ = function
+		A.Int -> i32_t
+	|       A.Float -> float_t
+	| 	A.Bool -> i1_t
+ 	|	A.Void -> void_t
+	| 	A.StructType s ->  Hashtbl.find struct_types s
+	|	A.MyString -> ptr_t 
+	| 	A.Voidstar -> ptr_t 
+	|	A.PointerType t -> L.pointer_type (ltype_of_typ t) in 
+	let populate_struct_type sdecl = 
+		let struct_t = Hashtbl.find struct_types sdecl.A.sname in
+		let type_list = Array.of_list(List.map (fun(t, _) -> ltype_of_typ t) sdecl.A.sformals) in
+		L.struct_set_body struct_t type_list true
 	in 
-    ignore(List.map populate\_struct\_type structs);
+    ignore(List.map populate_struct_type structs);
   
-  let string\_option\_to\_string = function
+  let string_option_to_string = function
 	None -> ""
 	| Some(s) -> s
   in
 	
-  (*struct\_field\_index is a map where key is struct name and value is another map*)
+  (*struct_field_index is a map where key is struct name and value is another map*)
   (*in the second map, the key is the field name and the value is the index number*)
-  let struct\_field\_index\_list =
-	let handle\_list m individual\_struct = 
+  let struct_field_index_list =
+	let handle_list m individual_struct = 
 		(*list of all field names for that struct*) 
-		let struct\_field\_name\_list = List.map snd individual\_struct.A.sformals in
+		let struct_field_name_list = List.map snd individual_struct.A.sformals in
 		let increment n = n + 1 in
-		let add\_field\_and\_index (m, i) field\_name =
+		let add_field_and_index (m, i) field_name =
 			(*add each field and index to the second map*)
-			(StringMap.add field\_name (increment i) m, increment i) in
-		(*struct\_field\_map is the second map, with key = field name and value = index*)
-		let struct\_field\_map = 
-			List.fold\_left add\_field\_and\_index (StringMap.empty, -1) struct\_field\_name\_list
+			(StringMap.add field_name (increment i) m, increment i) in
+		(*struct_field_map is the second map, with key = field name and value = index*)
+		let struct_field_map = 
+			List.fold_left add_field_and_index (StringMap.empty, -1) struct_field_name_list
 		in
 		(*add field map (the first part of the tuple) to the main map*)
-		StringMap.add individual\_struct.A.sname (fst struct\_field\_map) m	
+		StringMap.add individual_struct.A.sname (fst struct_field_map) m	
 	in
-	List.fold\_left handle\_list StringMap.empty structs	
+	List.fold_left handle_list StringMap.empty structs	
   in
     (* Declare each global variable; remember its value in a map *)
-  let global\_vars =
-    let global\_var m (t, n) =
-      let init = L.const\_int (ltype\_of\_typ t) 0
-      in StringMap.add n (L.define\_global n init the\_module) m in
-    List.fold\_left global\_var StringMap.empty globals in
+  let global_vars =
+    let global_var m (t, n) =
+      let init = L.const_int (ltype_of_typ t) 0
+      in StringMap.add n (L.define_global n init the_module) m in
+    List.fold_left global_var StringMap.empty globals in
 
-  let append\_strings\_t = L.function\_type void\_t [| ptr\_t; ptr\_t |] in
-  let append\_strings\_func = L.declare\_function "append\_strings" append\_strings\_t the\_module in
+  let append_strings_t = L.function_type void_t [| ptr_t; ptr_t |] in
+  let append_strings_func = L.declare_function "append_strings" append_strings_t the_module in
 
-  let int\_to\_string\_t = L.function\_type void\_t [| i32\_t; ptr\_t |] in
-  let int\_to\_string\_func = L.declare\_function "int\_to\_string" int\_to\_string\_t the\_module in
+  let int_to_string_t = L.function_type void_t [| i32_t; ptr_t |] in
+  let int_to_string_func = L.declare_function "int_to_string" int_to_string_t the_module in
 
-  let printf\_t = L.var\_arg\_function\_type i32\_t [| ptr\_t |] in
-  let printf\_func = L.declare\_function "printf" printf\_t the\_module in
+  let printf_t = L.var_arg_function_type i32_t [| ptr_t |] in
+  let printf_func = L.declare_function "printf" printf_t the_module in
 
-  let execl\_t = L.var\_arg\_function\_type i32\_t [| ptr\_t |] in
-  let execl\_func = L.declare\_function "exec\_prog" execl\_t the\_module in
+  let execl_t = L.var_arg_function_type i32_t [| ptr_t |] in
+  let execl_func = L.declare_function "exec_prog" execl_t the_module in
 
-  let free\_t = L.function\_type void\_t [| ptr\_t |] in
-  let free\_func = L.declare\_function "free" free\_t the\_module in
+  let free_t = L.function_type void_t [| ptr_t |] in
+  let free_func = L.declare_function "free" free_t the_module in
 
-  let malloc\_t = L.function\_type ptr\_t [| i32\_t |] in
-  let malloc\_func = L.declare\_function "malloc" malloc\_t the\_module in
+  let malloc_t = L.function_type ptr_t [| i32_t |] in
+  let malloc_func = L.declare_function "malloc" malloc_t the_module in
 
-  let request\_from\_server\_t = L.function\_type ptr\_t [| ptr\_t |] in
-  let request\_from\_server\_func = L.declare\_function "request\_from\_server" request\_from\_server\_t the\_module in
+  let request_from_server_t = L.function_type ptr_t [| ptr_t |] in
+  let request_from_server_func = L.declare_function "request_from_server" request_from_server_t the_module in
 
-  let memset\_t = L.function\_type ptr\_t [| ptr\_t; i32\_t; i32\_t |] in
-  let memset\_func = L.declare\_function "memset" memset\_t the\_module in
+  let memset_t = L.function_type ptr_t [| ptr_t; i32_t; i32_t |] in
+  let memset_func = L.declare_function "memset" memset_t the_module in
 
   (* File I/O functions *)
-  let open\_t = L.function\_type i32\_t [| ptr\_t; i32\_t; i32\_t |] in
-  let open\_func = L.declare\_function "open" open\_t the\_module in
+  let open_t = L.function_type i32_t [| ptr_t; i32_t; i32_t |] in
+  let open_func = L.declare_function "open" open_t the_module in
 
-  let close\_t = L.function\_type i32\_t [| i32\_t |] in
-  let close\_func = L.declare\_function "close" close\_t the\_module in
+  let close_t = L.function_type i32_t [| i32_t |] in
+  let close_func = L.declare_function "close" close_t the_module in
 
-  let read\_t = L.function\_type i32\_t [| i32\_t; ptr\_t; i32\_t |] in
-  let read\_func = L.declare\_function "read" read\_t the\_module in
+  let read_t = L.function_type i32_t [| i32_t; ptr_t; i32_t |] in
+  let read_func = L.declare_function "read" read_t the_module in
 
-  let write\_t = L.function\_type i32\_t [| i32\_t; ptr\_t; i32\_t |] in
-  let write\_func = L.declare\_function "write" write\_t the\_module in 
+  let write_t = L.function_type i32_t [| i32_t; ptr_t; i32_t |] in
+  let write_func = L.declare_function "write" write_t the_module in 
 
-  let lseek\_t = L.function\_type i32\_t [| i32\_t; i32\_t; i32\_t |] in
-  let lseek\_func = L.declare\_function "lseek" lseek\_t the\_module in
+  let lseek_t = L.function_type i32_t [| i32_t; i32_t; i32_t |] in
+  let lseek_func = L.declare_function "lseek" lseek_t the_module in
 
-  let sleep\_t = L.function\_type i32\_t [| i32\_t |] in
-  let sleep\_func = L.declare\_function "sleep" sleep\_t the\_module in
+  let sleep_t = L.function_type i32_t [| i32_t |] in
+  let sleep_func = L.declare_function "sleep" sleep_t the_module in
 
-  let default\_t = L.function\_type ptr\_t [|ptr\_t|] in
-  let default\_func = L.declare\_function "default\_start\_routine" default\_t the\_module in
+  let default_t = L.function_type ptr_t [|ptr_t|] in
+  let default_func = L.declare_function "default_start_routine" default_t the_module in
 
-  let param\_ty = L.function\_type ptr\_t [| ptr\_t |] in (* a function that returns void\_star and takes as argument void\_star *)
-let param\_ptr = L.pointer\_type param\_ty in  
-let thread\_t = L.function\_type void\_t [| param\_ptr; ptr\_t; i32\_t|] in (*a function that returns void and takes (above) and a voidstar and an int *)
-  let thread\_func = L.declare\_function "init\_thread" thread\_t the\_module in
+  let param_ty = L.function_type ptr_t [| ptr_t |] in (* a function that returns void_star and takes as argument void_star *)
+let param_ptr = L.pointer_type param_ty in  
+let thread_t = L.function_type void_t [| param_ptr; ptr_t; i32_t|] in (*a function that returns void and takes (above) and a voidstar and an int *)
+  let thread_func = L.declare_function "init_thread" thread_t the_module in
 
 
   (* Define each function (arguments and return type) so we can call it *)
-  let function\_decls =
-    let function\_decl m fdecl =
+  let function_decls =
+    let function_decl m fdecl =
       let name = fdecl.A.fname
-      and formal\_types =
-	Array.of\_list (List.map (fun (t,\_) -> ltype\_of\_typ t) fdecl.A.formals)
-      in let ftype = L.function\_type (ltype\_of\_typ fdecl.A.typ) formal\_types in
-      StringMap.add name (L.define\_function name ftype the\_module, fdecl) m in
-    List.fold\_left function\_decl StringMap.empty functions in
+      and formal_types =
+	Array.of_list (List.map (fun (t,_) -> ltype_of_typ t) fdecl.A.formals)
+      in let ftype = L.function_type (ltype_of_typ fdecl.A.typ) formal_types in
+      StringMap.add name (L.define_function name ftype the_module, fdecl) m in
+    List.fold_left function_decl StringMap.empty functions in
   
   (* Fill in the body of the given function *)
-  let build\_function\_body fdecl =
-    let (the\_function, \_) = StringMap.find fdecl.A.fname function\_decls in
-    let builder = L.builder\_at\_end context (L.entry\_block the\_function) in
+  let build_function_body fdecl =
+    let (the_function, _) = StringMap.find fdecl.A.fname function_decls in
+    let builder = L.builder_at_end context (L.entry_block the_function) in
 
-    let int\_format\_str = L.build\_global\_stringptr "%d\n" "fmt" builder in
-    let float\_format\_str = L.build\_global\_stringptr "%f\n" "fmt" builder in   
+    let int_format_str = L.build_global_stringptr "%d\n" "fmt" builder in
+    let float_format_str = L.build_global_stringptr "%f\n" "fmt" builder in   
  
     (* Construct the function's "locals": formal arguments and locally
        declared variables.  Allocate each on the stack, initialize their
        value, if appropriate, and remember their values in the "locals" map *)
-    let local\_vars =
-      let add\_formal m (t, n) p = L.set\_value\_name n p;
-	let local = L.build\_alloca (ltype\_of\_typ t) n builder in
-	ignore (L.build\_store p local builder);
+    let local_vars =
+      let add_formal m (t, n) p = L.set_value_name n p;
+	let local = L.build_alloca (ltype_of_typ t) n builder in
+	ignore (L.build_store p local builder);
 	StringMap.add n local m in
 
-      let add\_local m (t, n) =
-	let local\_var = L.build\_alloca (ltype\_of\_typ t) n builder
-	in StringMap.add n local\_var m in
+      let add_local m (t, n) =
+	let local_var = L.build_alloca (ltype_of_typ t) n builder
+	in StringMap.add n local_var m in
 
-      let formals = List.fold\_left2 add\_formal StringMap.empty fdecl.A.formals
-          (Array.to\_list (L.params the\_function)) in
-      List.fold\_left add\_local formals fdecl.A.locals in
+      let formals = List.fold_left2 add_formal StringMap.empty fdecl.A.formals
+          (Array.to_list (L.params the_function)) in
+      List.fold_left add_local formals fdecl.A.locals in
 
     (* Return the value for a variable or formal argument *)
-    let lookup n = try StringMap.find n local\_vars
-                 with Not\_found -> try StringMap.find n global\_vars
-                 with Not\_found -> raise (Failure ("undeclared variable " ^ n))
+    let lookup n = try StringMap.find n local_vars
+                 with Not_found -> try StringMap.find n global_vars
+                 with Not_found -> raise (Failure ("undeclared variable " ^ n))
     in
 
     (* Construct code for an expression; return its value *)
-    let rec llvalue\_expr\_getter builder = function
+    let rec llvalue_expr_getter builder = function
      	A.Id s -> lookup s
 	|A.Dotop(e1, field) ->
 		(match e1 with
 			A.Id s -> let etype = fst( 
 				try List.find (fun t->snd(t)=s) fdecl.A.locals
-				with Not\_found -> raise (Failure("Unable to find" ^ s ^ "in dotop")))
+				with Not_found -> raise (Failure("Unable to find" ^ s ^ "in dotop")))
 				in
 				(try match etype with
 					A.StructType t->
-						let index\_number\_list = StringMap.find t struct\_field\_index\_list in
-						let index\_number = StringMap.find field index\_number\_list in
-						let struct\_llvalue = lookup s in
-						let access\_llvalue = L.build\_struct\_gep struct\_llvalue index\_number "dotop\_terminal" builder in
-						access\_llvalue
+						let index_number_list = StringMap.find t struct_field_index_list in
+						let index_number = StringMap.find field index_number_list in
+						let struct_llvalue = lookup s in
+						let access_llvalue = L.build_struct_gep struct_llvalue index_number "dotop_terminal" builder in
+						access_llvalue
 
-				| \_ -> raise (Failure("No structype."))
-			 with Not\_found -> raise (Failure("unable to find" ^ s)) )
-		| \_ as e1\_expr ->  let e1'\_llvalue = llvalue\_expr\_getter builder e1\_expr in
-			let loaded\_e1' = expr builder e1\_expr in
-			let e1'\_lltype = L.type\_of loaded\_e1' in
-			let e1'\_struct\_name\_string\_option = L.struct\_name e1'\_lltype in
-			let e1'\_struct\_name\_string = string\_option\_to\_string e1'\_struct\_name\_string\_option in
-			let index\_number\_list = StringMap.find e1'\_struct\_name\_string struct\_field\_index\_list in
-			let index\_number = StringMap.find field index\_number\_list in
-			let access\_llvalue = L.build\_struct\_gep e1'\_llvalue index\_number "gep\_in\_dotop" builder in
-			access\_llvalue )
+				| _ -> raise (Failure("No structype."))
+			 with Not_found -> raise (Failure("unable to find" ^ s)) )
+		| _ as e1_expr ->  let e1'_llvalue = llvalue_expr_getter builder e1_expr in
+			let loaded_e1' = expr builder e1_expr in
+			let e1'_lltype = L.type_of loaded_e1' in
+			let e1'_struct_name_string_option = L.struct_name e1'_lltype in
+			let e1'_struct_name_string = string_option_to_string e1'_struct_name_string_option in
+			let index_number_list = StringMap.find e1'_struct_name_string struct_field_index_list in
+			let index_number = StringMap.find field index_number_list in
+			let access_llvalue = L.build_struct_gep e1'_llvalue index_number "gep_in_dotop" builder in
+			access_llvalue )
 	
 	
 	|A.Unop(op, e)  ->
 		(match op with
 			A.Deref ->
-				let e\_llvalue = (llvalue\_expr\_getter builder e) in
-			        let e\_loaded = L.build\_load e\_llvalue "loaded\_deref" builder in 
-				e\_loaded
-			|\_ -> raise (Failure("nooo"))
+				let e_llvalue = (llvalue_expr_getter builder e) in
+			        let e_loaded = L.build_load e_llvalue "loaded_deref" builder in 
+				e_loaded
+			|_ -> raise (Failure("nooo"))
 		)
-	|\_ -> raise (Failure ("in llvalue\_expr\_getter but not a dotop!"))
+	|_ -> raise (Failure ("in llvalue_expr_getter but not a dotop!"))
     and
     expr builder = function
-	A.Literal i -> L.const\_int i32\_t i
-(*      | A.MyStringLit str -> L.const\_stringz context str *)
-      | A.FloatLiteral f -> L.const\_float float\_t f
-      | A.MyStringLit str -> L.build\_global\_stringptr str "tmp" builder
-      | A.BoolLit b -> L.const\_int i1\_t (if b then 1 else 0)
-      | A.Noexpr -> L.const\_int i32\_t 0
-      | A.Id s -> L.build\_load (lookup s) s builder
-      | A.ArrayRef (e, l) ->
-          let e\_llvalue = (llvalue\_expr\_getter builder e) in
-          let e\_loaded = L.build\_load e\_llvalue "loaded\_deref" builder in
-          e\_loaded
+	A.Literal i -> L.const_int i32_t i
+(*      | A.MyStringLit str -> L.const_stringz context str *)
+      | A.FloatLiteral f -> L.const_float float_t f
+      | A.MyStringLit str -> L.build_global_stringptr str "tmp" builder
+      | A.BoolLit b -> L.const_int i1_t (if b then 1 else 0)
+      | A.Noexpr -> L.const_int i32_t 0
+      | A.Id s -> L.build_load (lookup s) s builder
       | A.Binop (e1, op, e2) ->
 	  let e1' = expr builder e1
 	  and e2' = expr builder e2 in
 	  (match op with
-	    A.Add     -> (let e1\_type\_string = L.string\_of\_lltype (L.type\_of e1') in 
-				(match e1\_type\_string with
-					 "double" -> L.build\_fadd 
-		      			|"i32" -> L.build\_add
-					| \_ -> raise(Failure("Can only add ints or floats")) ))
-	   |A.Sub     -> (let e1\_type\_string = L.string\_of\_lltype (L.type\_of e1') in 
-				(match e1\_type\_string with
-					 "double" -> L.build\_fsub 
-		      			|"i32" -> L.build\_sub
-					| \_ -> raise(Failure("Can only subtract ints or floats")) ))
-	   |A.Mult     -> (let e1\_type\_string = L.string\_of\_lltype (L.type\_of e1') in 
-				(match e1\_type\_string with
-					 "double" -> L.build\_fmul
-		      			|"i32" -> L.build\_mul 	
-					| \_ -> raise(Failure("Can only multiply ints or floats")) ))
-	   |A.Div     -> (let e1\_type\_string = L.string\_of\_lltype (L.type\_of e1') in 
-				(match e1\_type\_string with
-					 "double" -> L.build\_fdiv 
-		      			|"i32" -> L.build\_sdiv
-					| \_ -> raise(Failure("Can only divide ints or floats")) ))
-	  | A.Mod     -> L.build\_srem
-	  | A.And     -> L.build\_and
-	  | A.Or      -> L.build\_or
-	  | A.Equal   -> L.build\_icmp L.Icmp.Eq
-	  | A.Neq     -> L.build\_icmp L.Icmp.Ne
-	  | A.Less    -> L.build\_icmp L.Icmp.Slt
-	  | A.Leq     -> L.build\_icmp L.Icmp.Sle
-	  | A.Greater -> L.build\_icmp L.Icmp.Sgt
-	  | A.Geq     -> L.build\_icmp L.Icmp.Sge
+	    A.Add     -> (let e1_type_string = L.string_of_lltype (L.type_of e1') in 
+				(match e1_type_string with
+					 "double" -> L.build_fadd 
+		      			|"i32" -> L.build_add
+					| _ -> raise(Failure("Can only add ints or floats")) ))
+	   |A.Sub     -> (let e1_type_string = L.string_of_lltype (L.type_of e1') in 
+				(match e1_type_string with
+					 "double" -> L.build_fsub 
+		      			|"i32" -> L.build_sub
+					| _ -> raise(Failure("Can only subtract ints or floats")) ))
+	   |A.Mult     -> (let e1_type_string = L.string_of_lltype (L.type_of e1') in 
+				(match e1_type_string with
+					 "double" -> L.build_fmul
+		      			|"i32" -> L.build_mul 	
+					| _ -> raise(Failure("Can only multiply ints or floats")) ))
+	   |A.Div     -> (let e1_type_string = L.string_of_lltype (L.type_of e1') in 
+				(match e1_type_string with
+					 "double" -> L.build_fdiv 
+		      			|"i32" -> L.build_sdiv
+					| _ -> raise(Failure("Can only divide ints or floats")) ))
+	  | A.Mod     -> L.build_srem
+	  | A.And     -> L.build_and
+	  | A.Or      -> L.build_or
+	  | A.Equal   -> L.build_icmp L.Icmp.Eq
+	  | A.Neq     -> L.build_icmp L.Icmp.Ne
+	  | A.Less    -> L.build_icmp L.Icmp.Slt
+	  | A.Leq     -> L.build_icmp L.Icmp.Sle
+	  | A.Greater -> L.build_icmp L.Icmp.Sgt
+	  | A.Geq     -> L.build_icmp L.Icmp.Sge
 	  ) e1' e2' "tmp" builder
-    | A.Dotop(e1, field) -> let \_ = expr builder e1 in
+    | A.Dotop(e1, field) -> let _ = expr builder e1 in
 	 (match e1 with
 		A.Id s -> let etype = fst( 
 			try List.find (fun t->snd(t)=s) fdecl.A.locals
-			with Not\_found -> raise (Failure("Unable to find" ^ s ^ "in dotop")))
+			with Not_found -> raise (Failure("Unable to find" ^ s ^ "in dotop")))
 			in
 			(try match etype with
 				A.StructType t->
-					let index\_number\_list = StringMap.find t struct\_field\_index\_list in
-					let index\_number = StringMap.find field index\_number\_list in
-					let struct\_llvalue = lookup s in
-					let access\_llvalue = L.build\_struct\_gep struct\_llvalue index\_number "dotop\_terminal" builder in
-					let loaded\_access = L.build\_load access\_llvalue "loaded\_dotop\_terminal" builder in
-					loaded\_access
+					let index_number_list = StringMap.find t struct_field_index_list in
+					let index_number = StringMap.find field index_number_list in
+					let struct_llvalue = lookup s in
+					let access_llvalue = L.build_struct_gep struct_llvalue index_number "dotop_terminal" builder in
+					let loaded_access = L.build_load access_llvalue "loaded_dotop_terminal" builder in
+					loaded_access
 
-				| \_ -> raise (Failure("No structype."))
-			 with Not\_found -> raise (Failure("unable to find" ^ s)) )
-		| \_ as e1\_expr ->  let e1'\_llvalue = llvalue\_expr\_getter builder e1\_expr in
-			let loaded\_e1' = expr builder e1\_expr in
-			let e1'\_lltype = L.type\_of loaded\_e1' in
-			let e1'\_struct\_name\_string\_option = L.struct\_name e1'\_lltype in
-			let e1'\_struct\_name\_string = string\_option\_to\_string e1'\_struct\_name\_string\_option in
-			let index\_number\_list = StringMap.find e1'\_struct\_name\_string struct\_field\_index\_list in
-			let index\_number = StringMap.find field index\_number\_list in
-			let access\_llvalue = L.build\_struct\_gep e1'\_llvalue index\_number "gep\_in\_dotop" builder in
-			L.build\_load access\_llvalue "loaded\_dotop" builder )
+				| _ -> raise (Failure("No structype."))
+			 with Not_found -> raise (Failure("unable to find" ^ s)) )
+		| _ as e1_expr ->  let e1'_llvalue = llvalue_expr_getter builder e1_expr in
+			let loaded_e1' = expr builder e1_expr in
+			let e1'_lltype = L.type_of loaded_e1' in
+			let e1'_struct_name_string_option = L.struct_name e1'_lltype in
+			let e1'_struct_name_string = string_option_to_string e1'_struct_name_string_option in
+			let index_number_list = StringMap.find e1'_struct_name_string struct_field_index_list in
+			let index_number = StringMap.find field index_number_list in
+			let access_llvalue = L.build_struct_gep e1'_llvalue index_number "gep_in_dotop" builder in
+			L.build_load access_llvalue "loaded_dotop" builder )
       | A.Unop(op, e) ->
 	  let e' = expr builder e in
 	  (match op with
-	    A.Neg     -> L.build\_neg e' "tmp" builder
-          | A.Not     -> L.build\_not e' "temp" builder
-	  | A.Deref -> let e\_loaded = L.build\_load e' "loaded\_deref" builder in
-			e\_loaded
-	  | A.Ref -> let e\_llvalue = (llvalue\_expr\_getter builder e) in
-		e\_llvalue
+	    A.Neg     -> L.build_neg e' "tmp" builder
+          | A.Not     -> L.build_not e' "temp" builder
+	  | A.Deref -> let e_loaded = L.build_load e' "loaded_deref" builder in
+			e_loaded
+	  | A.Ref -> let e_llvalue = (llvalue_expr_getter builder e) in
+		e_llvalue
 	  )
-      | A.Castop(ast\_cast\_type, e) ->
- 		let cast\_lltype = ltype\_of\_typ ast\_cast\_type in
-		let e\_llvalue = expr builder e in
-		L.build\_pointercast e\_llvalue cast\_lltype "plz" builder
+      | A.Castop(ast_cast_type, e) ->
+ 		let cast_lltype = ltype_of_typ ast_cast_type in
+		let e_llvalue = expr builder e in
+		L.build_pointercast e_llvalue cast_lltype "plz" builder
       | A.Assign (lhs, e2) -> let e2' = expr builder e2 in
 			(match lhs with
-			A.Id s ->ignore (L.build\_store e2' (lookup s) builder); e2'
+			A.Id s ->ignore (L.build_store e2' (lookup s) builder); e2'
 			|A.Dotop (e1, field) ->
 				(match e1 with 			
 					
 					A.Id s -> let e1typ = fst(
 					try List.find (fun t -> snd(t) = s) fdecl.A.locals
-					with Not\_found -> raise(Failure("unable to find" ^ s ^ "in Sassign")))
+					with Not_found -> raise(Failure("unable to find" ^ s ^ "in Sassign")))
 					in
 					(match e1typ with
 						A.StructType t -> (try 
-							let index\_number\_list = StringMap.find t struct\_field\_index\_list in
-							let index\_number = StringMap.find field index\_number\_list in
-							let struct\_llvalue = lookup s in
-							let access\_llvalue = L.build\_struct\_gep struct\_llvalue index\_number field builder in
-							(try (ignore(L.build\_store e2' access\_llvalue builder);e2')
-								with Not\_found -> raise (Failure("unable to store " ^ t )) )
-							with Not\_found -> raise (Failure("unable to find" ^ s)) )
-						| \_ -> raise (Failure("StructType not found.")))
-				|\_ as e1\_expr -> let e1'\_llvalue = llvalue\_expr\_getter builder e1\_expr in 
-					let loaded\_e1' = expr builder e1\_expr in
-					let e1'\_lltype = L.type\_of loaded\_e1' in
-					let e1'\_struct\_name\_string\_option = L.struct\_name e1'\_lltype in
-					let e1'\_struct\_name\_string = string\_option\_to\_string e1'\_struct\_name\_string\_option in
-					let index\_number\_list = StringMap.find e1'\_struct\_name\_string struct\_field\_index\_list in
-					let index\_number = StringMap.find field index\_number\_list in
-					let access\_llvalue = L.build\_struct\_gep e1'\_llvalue index\_number "gep\_in\_Sassign" builder in
-					let \_ = L.build\_store e2' access\_llvalue builder in
+							let index_number_list = StringMap.find t struct_field_index_list in
+							let index_number = StringMap.find field index_number_list in
+							let struct_llvalue = lookup s in
+							let access_llvalue = L.build_struct_gep struct_llvalue index_number field builder in
+							(try (ignore(L.build_store e2' access_llvalue builder);e2')
+								with Not_found -> raise (Failure("unable to store " ^ t )) )
+							with Not_found -> raise (Failure("unable to find" ^ s)) )
+						| _ -> raise (Failure("StructType not found.")))
+				|_ as e1_expr -> let e1'_llvalue = llvalue_expr_getter builder e1_expr in 
+					let loaded_e1' = expr builder e1_expr in
+					let e1'_lltype = L.type_of loaded_e1' in
+					let e1'_struct_name_string_option = L.struct_name e1'_lltype in
+					let e1'_struct_name_string = string_option_to_string e1'_struct_name_string_option in
+					let index_number_list = StringMap.find e1'_struct_name_string struct_field_index_list in
+					let index_number = StringMap.find field index_number_list in
+					let access_llvalue = L.build_struct_gep e1'_llvalue index_number "gep_in_Sassign" builder in
+					let _ = L.build_store e2' access_llvalue builder in
 					e2'
 				)
 			
 			 |A.Unop(op, e)  ->
 					(match op with
 						A.Deref ->
-							let e\_llvalue = (llvalue\_expr\_getter builder e) in
-						        let e\_loaded = L.build\_load e\_llvalue "loaded\_deref" builder in 
-							let \_ = L.build\_store e2' e\_loaded builder in
+							let e_llvalue = (llvalue_expr_getter builder e) in
+						        let e_loaded = L.build_load e_llvalue "loaded_deref" builder in 
+							let _ = L.build_store e2' e_loaded builder in
 							e2'	
-						|\_ -> raise (Failure("nooo"))
+						|_ -> raise (Failure("nooo"))
 					)
-			 |\_ -> raise (Failure("can't match in assign"))
+			 |_ -> raise (Failure("can't match in assign"))
 			)
-      | A.Call ("print\_int", [e]) | A.Call ("printb", [e]) ->
-	  L.build\_call printf\_func [| int\_format\_str ; (expr builder e) |]
-	  "printf" builder
-
-    | A.Call ("print\_float", [e]) ->
-	L.build\_call printf\_func [| float\_format\_str; (expr builder e) |] "printf" builder 
+      | A.Call ("print_int", [e]) | A.Call ("printb", [e]) ->
+	  L.build_call printf_func [| int_format_str ; (expr builder e) |]
+	    "printf" builder
+    | A.Call ("print_float", [e]) ->
+	L.build_call printf_func [| float_format_str; (expr builder e) |] "printf" builder 
 
     | A.Call ("print", [e])->
-        L.build\_call printf\_func [| (expr builder e) |] "printf" builder
+        L.build_call printf_func [| (expr builder e) |] "printf" builder
 
-    | A.Call ("append\_strings", e) ->
-	let evald\_expr\_list = List.map (expr builder)e in
-	let evald\_expr\_arr = Array.of\_list evald\_expr\_list in
-	L.build\_call append\_strings\_func evald\_expr\_arr "" builder
+    | A.Call ("append_strings", e) ->
+	let evald_expr_list = List.map (expr builder)e in
+	let evald_expr_arr = Array.of_list evald_expr_list in
+	L.build_call append_strings_func evald_expr_arr "" builder
 
-    | A.Call ("int\_to\_string", e) ->
-	let evald\_expr\_list = List.map (expr builder)e in
-	let evald\_expr\_arr = Array.of\_list evald\_expr\_list in
-	L.build\_call int\_to\_string\_func evald\_expr\_arr "" builder
+    | A.Call ("int_to_string", e) ->
+	let evald_expr_list = List.map (expr builder)e in
+	let evald_expr_arr = Array.of_list evald_expr_list in
+	L.build_call int_to_string_func evald_expr_arr "" builder
 
-    | A.Call ("exec\_prog", e) ->
-	let evald\_expr\_list = List.map (expr builder)e in
-	let evald\_expr\_arr = Array.of\_list evald\_expr\_list in
-	L.build\_call execl\_func evald\_expr\_arr "exec\_prog" builder
+
+
+    | A.Call ("exec_prog", e) ->
+	let evald_expr_list = List.map (expr builder)e in
+	let evald_expr_arr = Array.of_list evald_expr_list in
+	L.build_call execl_func evald_expr_arr "exec_prog" builder
 
     | A.Call("free", e) ->
-	L.build\_call free\_func (Array.of\_list (List.map (expr builder) e)) "" builder
+	L.build_call free_func (Array.of_list (List.map (expr builder) e)) "" builder
 
     | A.Call ("malloc", e) ->
-      	let evald\_expr\_list = List.map (expr builder)e in
-	let evald\_expr\_arr = Array.of\_list evald\_expr\_list in
-	L.build\_call malloc\_func evald\_expr\_arr "malloc" builder
+      	let evald_expr_list = List.map (expr builder)e in
+	let evald_expr_arr = Array.of_list evald_expr_list in
+	L.build_call malloc_func evald_expr_arr "malloc" builder
 
     | A.Call ("memset", e) ->
-	let evald\_expr\_list = List.map (expr builder)e in
-	let evald\_expr\_arr = Array.of\_list evald\_expr\_list in
-	L.build\_call memset\_func evald\_expr\_arr "memset" builder
+	let evald_expr_list = List.map (expr builder)e in
+	let evald_expr_arr = Array.of_list evald_expr_list in
+	L.build_call memset_func evald_expr_arr "memset" builder
 
   (* File I/O functions *)
     | A.Call("open", e) ->
-	let evald\_expr\_list = List.map (expr builder)e in
-	let evald\_expr\_arr = Array.of\_list evald\_expr\_list in
-	L.build\_call open\_func evald\_expr\_arr "open" builder
+	let evald_expr_list = List.map (expr builder)e in
+	let evald_expr_arr = Array.of_list evald_expr_list in
+	L.build_call open_func evald_expr_arr "open" builder
 
     | A.Call("close", e) ->
-	let evald\_expr\_list = List.map (expr builder)e in
-	let evald\_expr\_arr = Array.of\_list evald\_expr\_list in
-  	L.build\_call close\_func evald\_expr\_arr "close" builder
+	let evald_expr_list = List.map (expr builder)e in
+	let evald_expr_arr = Array.of_list evald_expr_list in
+  	L.build_call close_func evald_expr_arr "close" builder
 
     | A.Call("read", e) ->
-	let evald\_expr\_list = List.map (expr builder)e in
-	let evald\_expr\_arr = Array.of\_list evald\_expr\_list in
-	L.build\_call read\_func evald\_expr\_arr "read" builder
+	let evald_expr_list = List.map (expr builder)e in
+	let evald_expr_arr = Array.of_list evald_expr_list in
+	L.build_call read_func evald_expr_arr "read" builder
 
     | A.Call("write", e) ->
-	let evald\_expr\_list = List.map (expr builder)e in
-	let evald\_expr\_arr = Array.of\_list evald\_expr\_list in
-	L.build\_call write\_func evald\_expr\_arr "write" builder
+	let evald_expr_list = List.map (expr builder)e in
+	let evald_expr_arr = Array.of_list evald_expr_list in
+	L.build_call write_func evald_expr_arr "write" builder
 
     | A.Call("lseek", e) ->
-	let evald\_expr\_list = List.map (expr builder)e in
-	let evald\_expr\_arr = Array.of\_list evald\_expr\_list in
-	L.build\_call lseek\_func evald\_expr\_arr "lseek" builder
+	let evald_expr_list = List.map (expr builder)e in
+	let evald_expr_arr = Array.of_list evald_expr_list in
+	L.build_call lseek_func evald_expr_arr "lseek" builder
 
     | A.Call("sleep", e) ->
-	let evald\_expr\_list = List.map (expr builder)e in
-	let evald\_expr\_arr = Array.of\_list evald\_expr\_list in
-	L.build\_call sleep\_func evald\_expr\_arr "sleep" builder
+	let evald_expr_list = List.map (expr builder)e in
+	let evald_expr_arr = Array.of_list evald_expr_list in
+	L.build_call sleep_func evald_expr_arr "sleep" builder
 
     | A.Call ("thread", e)->
-(*	L.build\_call printf\_func [| int\_format\_str ; L.const\_int i32\_t 8 |] "printf" builder	*)
-	let evald\_expr\_list = List.map (expr builder)e in
-(*	let target\_func\_strptr = List.hd evald\_expr\_list in  (* jsut get the string by doing List.hd on e *)
-	let target\_func\_str = L.string\_of\_llvalue target\_func\_strptr in *)
-	let get\_string v = match v with
+(*	L.build_call printf_func [| int_format_str ; L.const_int i32_t 8 |] "printf" builder	*)
+	let evald_expr_list = List.map (expr builder)e in
+(*	let target_func_strptr = List.hd evald_expr_list in  (* jsut get the string by doing List.hd on e *)
+	let target_func_str = L.string_of_llvalue target_func_strptr in *)
+	let get_string v = match v with
 		| A.MyStringLit i -> i
-		| \_ -> "" in
-	let target\_func\_str = get\_string (List.hd e) in
-	(*let target\_func\_str = Option.default "" Some(target\_func\_str\_opt) in *)
-	let target\_func\_llvalue\_opt = L.lookup\_function target\_func\_str the\_module in
+		| _ -> "" in
+	let target_func_str = get_string (List.hd e) in
+	(*let target_func_str = Option.default "" Some(target_func_str_opt) in *)
+	let target_func_llvalue_opt = L.lookup_function target_func_str the_module in
 	let deopt x = match x with
 		|Some f -> f
-		| None -> default\_func in
-	let target\_func\_llvalue = deopt target\_func\_llvalue\_opt in
-	let remaining\_list = List.tl evald\_expr\_list in
-	let new\_arg\_list = target\_func\_llvalue :: remaining\_list in
-	let new\_arg\_arr = Array.of\_list new\_arg\_list in
-		L.build\_call thread\_func
-		new\_arg\_arr	
+		| None -> default_func in
+	let target_func_llvalue = deopt target_func_llvalue_opt in
+	let remaining_list = List.tl evald_expr_list in
+	let new_arg_list = target_func_llvalue :: remaining_list in
+	let new_arg_arr = Array.of_list new_arg_list in
+		L.build_call thread_func
+		new_arg_arr	
                 "" builder
 
-    | A.Call ("request\_from\_server", e) ->
-	let evald\_expr\_list = List.map (expr builder) e in
-	let evald\_expr\_arr = Array.of\_list evald\_expr\_list in
-	L.build\_call request\_from\_server\_func evald\_expr\_arr "request\_from\_server" builder
+    | A.Call ("request_from_server", e) ->
+	let evald_expr_list = List.map (expr builder) e in
+	let evald_expr_arr = Array.of_list evald_expr_list in
+	L.build_call request_from_server_func evald_expr_arr "request_from_server" builder
 
      | A.Call (f, act) ->
-         let (fdef, fdecl) = StringMap.find f function\_decls in
+         let (fdef, fdecl) = StringMap.find f function_decls in
 	 let actuals = List.rev (List.map (expr builder) (List.rev act)) in
 	 let result = (match fdecl.A.typ with A.Void -> ""
-                                            | \_ -> f ^ "\_result") in
-         L.build\_call fdef (Array.of\_list actuals) result builder
+                                            | _ -> f ^ "_result") in
+         L.build_call fdef (Array.of_list actuals) result builder
     in
 
     (* Invoke "f builder" if the current block doesn't already
        have a terminal (e.g., a branch). *)
-    let add\_terminal builder f =
-      match L.block\_terminator (L.insertion\_block builder) with
-	Some \_ -> ()
+    let add_terminal builder f =
+      match L.block_terminator (L.insertion_block builder) with
+	Some _ -> ()
       | None -> ignore (f builder) in
 	
     (* Build the code for the given statement; return the builder for
        the statement's successor *)
     let rec stmt builder = function
-	A.Block sl -> List.fold\_left stmt builder sl
+	A.Block sl -> List.fold_left stmt builder sl
       | A.Expr e -> ignore (expr builder e); builder
       | A.Return e -> ignore (match fdecl.A.typ with
-	  A.Void -> L.build\_ret\_void builder
-	| \_ -> L.build\_ret (expr builder e) builder); builder
-      | A.If (predicate, then\_stmt, else\_stmt) ->
-         let bool\_val = expr builder predicate in
-	 let merge\_bb = L.append\_block context "merge" the\_function in
+	  A.Void -> L.build_ret_void builder
+	| _ -> L.build_ret (expr builder e) builder); builder
+      | A.If (predicate, then_stmt, else_stmt) ->
+         let bool_val = expr builder predicate in
+	 let merge_bb = L.append_block context "merge" the_function in
 
-	 let then\_bb = L.append\_block context "then" the\_function in
-	 add\_terminal (stmt (L.builder\_at\_end context then\_bb) then\_stmt)
-	   (L.build\_br merge\_bb);
+	 let then_bb = L.append_block context "then" the_function in
+	 add_terminal (stmt (L.builder_at_end context then_bb) then_stmt)
+	   (L.build_br merge_bb);
 
-	 let else\_bb = L.append\_block context "else" the\_function in
-	 add\_terminal (stmt (L.builder\_at\_end context else\_bb) else\_stmt)
-	   (L.build\_br merge\_bb);
+	 let else_bb = L.append_block context "else" the_function in
+	 add_terminal (stmt (L.builder_at_end context else_bb) else_stmt)
+	   (L.build_br merge_bb);
 
-	 ignore (L.build\_cond\_br bool\_val then\_bb else\_bb builder);
-	 L.builder\_at\_end context merge\_bb
+	 ignore (L.build_cond_br bool_val then_bb else_bb builder);
+	 L.builder_at_end context merge_bb
 
       | A.While (predicate, body) ->
-	  let pred\_bb = L.append\_block context "while" the\_function in
-	  ignore (L.build\_br pred\_bb builder);
+	  let pred_bb = L.append_block context "while" the_function in
+	  ignore (L.build_br pred_bb builder);
 
-	  let body\_bb = L.append\_block context "while\_body" the\_function in
-	  add\_terminal (stmt (L.builder\_at\_end context body\_bb) body)
-	    (L.build\_br pred\_bb);
+	  let body_bb = L.append_block context "while_body" the_function in
+	  add_terminal (stmt (L.builder_at_end context body_bb) body)
+	    (L.build_br pred_bb);
 
-	  let pred\_builder = L.builder\_at\_end context pred\_bb in
-	  let bool\_val = expr pred\_builder predicate in
+	  let pred_builder = L.builder_at_end context pred_bb in
+	  let bool_val = expr pred_builder predicate in
 
-	  let merge\_bb = L.append\_block context "merge" the\_function in
-	  ignore (L.build\_cond\_br bool\_val body\_bb merge\_bb pred\_builder);
-	  L.builder\_at\_end context merge\_bb
+	  let merge_bb = L.append_block context "merge" the_function in
+	  ignore (L.build_cond_br bool_val body_bb merge_bb pred_builder);
+	  L.builder_at_end context merge_bb
 
       | A.For (e1, e2, e3, body) -> stmt builder
 	    ( A.Block [A.Expr e1 ; A.While (e2, A.Block [body ; A.Expr e3]) ] )
@@ -1211,19 +1201,19 @@ let thread\_t = L.function\_type void\_t [| param\_ptr; ptr\_t; i32\_t|] in (*a 
     let builder = stmt builder (A.Block fdecl.A.body) in
 
     (* Add a return if the last block falls off the end *)
-    add\_terminal builder (match fdecl.A.typ with
-        A.Void -> L.build\_ret\_void
-      | t -> L.build\_ret (L.const\_int (ltype\_of\_typ t) 0))
+    add_terminal builder (match fdecl.A.typ with
+        A.Void -> L.build_ret_void
+      | t -> L.build_ret (L.const_int (ltype_of_typ t) 0))
   in
 
 
-  List.iter build\_function\_body functions;
+  List.iter build_function_body functions;
 
-  let llmem = Llvm.MemoryBuffer.of\_file "bindings.bc" in
-  let llm = Llvm\_bitreader.parse\_bitcode context llmem in
-  ignore(Llvm\_linker.link\_modules the\_module llm Llvm\_linker.Mode.PreserveSource);
+  let llmem = Llvm.MemoryBuffer.of_file "bindings.bc" in
+  let llm = Llvm_bitreader.parse_bitcode context llmem in
+  ignore(Llvm_linker.link_modules the_module llm Llvm_linker.Mode.PreserveSource);
 
-  the\_module
+  the_module
 
 \end{lstlisting}
 \section{bindings.c}
@@ -1240,17 +1230,17 @@ let thread\_t = L.function\_type void\_t [| param\_ptr; ptr\_t; i32\_t|] in (*a 
 #include <string.h>
 #define BUFSIZE 4096
 
-void append\_strings(void *str1, void *str2)
+void append_strings(void *str1, void *str2)
 {
     strcat((char *)str1, (char *)str2);
 }
 
-void int\_to\_string(int n, void *buf)
+void int_to_string(int n, void *buf)
 {
     sprintf(buf, "%d", n);
 }
 
-int exec\_prog(void *str1, void *str2, void *str3)
+int exec_prog(void *str1, void *str2, void *str3)
 {
 
     execl((char *)str1, (char *)str2, (char *)str3, NULL);
@@ -1260,8 +1250,8 @@ int exec\_prog(void *str1, void *str2, void *str3)
 /*
  * Given a URL, send a GET request.
  */
-//void *get\_request(void *url, void *filePath)
-void *request\_from\_server(void *urlVoid)
+//void *get_request(void *url, void *filePath)
+void *request_from_server(void *urlVoid)
 {
     // www.xkcd.com/index.html
     char *urlStr = (char *) urlVoid;
@@ -1277,7 +1267,7 @@ void *request\_from\_server(void *urlVoid)
 
     char *serverIP;
     int sock;   // socket we connect to remote on
-    struct sockaddr\_in serverAddr;
+    struct sockaddr_in serverAddr;
     struct hostent *he;
     char recvbuf[BUFSIZE];
 
@@ -1286,16 +1276,16 @@ void *request\_from\_server(void *urlVoid)
         exit(1);
     }
 
-    sock = socket(AF\_INET, SOCK\_STREAM, 0);
+    sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock < 0) {
         fprintf(stderr, "socket() failed.");
         exit(1);
     }
-    serverIP = inet\_ntoa(*(struct in\_addr *)he->h\_addr);
+    serverIP = inet_ntoa(*(struct in_addr *)he->h_addr);
     memset(&serverAddr, 0, sizeof(serverAddr));
-    serverAddr.sin\_addr.s\_addr = inet\_addr(serverIP);
-    serverAddr.sin\_family = AF\_INET;
-    serverAddr.sin\_port = htons(80);
+    serverAddr.sin_addr.s_addr = inet_addr(serverIP);
+    serverAddr.sin_family = AF_INET;
+    serverAddr.sin_port = htons(80);
 
     int connected = connect(sock, (struct sockaddr *)&serverAddr, sizeof(serverAddr));
     if(connected < 0) {
@@ -1350,12 +1340,12 @@ void *request\_from\_server(void *urlVoid)
 
     char *filePathName = malloc(100);
     memset(filePathName, 0, 100);
-    char *last\_slash;
-    if ((last\_slash = strrchr(filePath, '/')) != NULL) {
-        if (strlen(last\_slash) == 1) {
+    char *last_slash;
+    if ((last_slash = strrchr(filePath, '/')) != NULL) {
+        if (strlen(last_slash) == 1) {
              strcpy(filePathName, "index.html");
         } else {
-             strcpy(filePathName, last\_slash + 1);
+             strcpy(filePathName, last_slash + 1);
         }
     }
     
@@ -1367,7 +1357,7 @@ void *request\_from\_server(void *urlVoid)
         exit(1);
     }
 
-    size\_t n;
+    size_t n;
     int total = 0;
     memset(recvbuf, 0, BUFSIZE);
     printf("buffer contents: %s\n", recvbuf);
@@ -1393,21 +1383,21 @@ void *request\_from\_server(void *urlVoid)
     return NULL;
 }
 
-void *default\_start\_routine(void *arg)
+void *default_start_routine(void *arg)
 {
     return arg;
 }
 
-void init\_thread(void *(*start\_routine) (void *), void *arg, int nthreads)
+void init_thread(void *(*start_routine) (void *), void *arg, int nthreads)
 {
-    pthread\_t thread[nthreads];
+    pthread_t thread[nthreads];
     int i;
     for (i = 0; i < nthreads; i ++) {
-	pthread\_create(&thread[i], NULL, start\_routine, arg);
+	pthread_create(&thread[i], NULL, start_routine, arg);
     }
 
     for (i = 0; i < nthreads; i++) {
-	pthread\_join(thread[i], NULL);
+	pthread_join(thread[i], NULL);
     }
 }
 \end{lstlisting}
