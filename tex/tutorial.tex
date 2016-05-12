@@ -248,11 +248,11 @@ thread("functionname", <comma separated args>, #threads);
 	\end{lstlisting}
 
 	\noindent
-	Multithreaded functions must take a \texttt{*void} type as input and return a starvoid to conform with C's calling convention. An example of a multithreaded program:
+	Multithreaded functions must take a \texttt{*void} type as input and return a *void to conform with C's calling convention. An example of a multithreaded program:
 
 	\begin{lstlisting}
 function multiprint(noop *void) *void{
-	let x starvoid;
+	let x *void;
 	print("Hello, World!\n");
 	return x;
 }
