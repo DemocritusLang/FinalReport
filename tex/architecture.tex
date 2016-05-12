@@ -19,5 +19,7 @@
     The parser is a token scanner that converts the tokens read into a valid abstract syntax tree of the program. If the program follows valid syntax, it will be parsed accordingly. Otherwise, compilation of code will yield a parse error. The structure of the program is as follows:
 
 	\subsection{The Semantic Analyzer}
+	The semantic analyzer checks the consistency and correctness of user programs. For example, it will check whether variables are defined within a scope, whether types of expressions match their uses in definitions and function calls, and whether structs are used correctly (a large modification we made was semantic checking for circular struct definitions).  
 
 	\subsection{The Code Generator}
+	The code generator then takes in a definition of a program and builds the equivalent LLVM IR. 

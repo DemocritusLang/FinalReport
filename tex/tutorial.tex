@@ -249,10 +249,10 @@ thread("functionname", <comma separated args>, #threads);
 	\end{lstlisting}
 
 	\noindent
-	Multithreaded functions must take a \texttt{starvoid} type as input and return a starvoid to conform with C's calling convention. An example of a multithreaded program:
+	Multithreaded functions must take a \texttt{*void} type as input and return a starvoid to conform with C's calling convention. An example of a multithreaded program:
 
 	\begin{lstlisting}
-function multiprint(noop starvoid) starvoid{
+function multiprint(noop *void) *void{
 	let x starvoid;
 	print("Hello, World!\n");
 	return x;
@@ -305,3 +305,14 @@ function main() int{
 		\end{lstlisting}
 
 	\subsection{Sockets API}
+	Democritus provides support for networking functionality through use of the C sockets API. A bound C function, \texttt{request\_from\_server}, allows a user to retrieve the contents of a webpage, written to a file, as follows:
+	
+			\begin{lstlisting}
+function main() int
+{
+    let fd int;  //the file descriptor
+    request_from_server("www.xkcd.com/index.html"); //write the content of the page to "index.html"
+    exec_prog("/bin/cat", "cat", "tests/index.html"); //cat the file to stdout, used for testing 
+    return 0;
+}
+		\end{lstlisting}
