@@ -244,7 +244,7 @@ function main() int{
 \section{Multithreading and Atomicity}
 	Democritus supports threading with the \texttt{thread()} function call, which then calls the underlying \texttt{pthread} function in C. Any defined function can be called with multiple threads. The calling syntax is as follows:
 	\begin{lstlisting}
-thread("functionname", <comma separated args>, #threads);
+thread("functionname", args, numthreads);
 	\end{lstlisting}
 
 	\noindent
