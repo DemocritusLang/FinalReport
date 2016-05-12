@@ -6,7 +6,6 @@ rm $TEX_FILE
 touch $TEX_FILE
 
 echo "\\chapter{Tests and Output}" >> $TEX_FILE
-echo "\\begin{lstlisting}" >> $TEX_FILE
 
 for filename in $(ls $TEST_FILES); do
     echo "\\subsection{$filename}" >> $TEX_FILE
@@ -16,4 +15,3 @@ for filename in $(ls $TEST_FILES); do
 done
 
 echo -e "\n" >> $TEX_FILE
-echo "\\end{lstlisting}" >> $TEX_FILE
