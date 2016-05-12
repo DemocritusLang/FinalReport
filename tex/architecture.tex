@@ -18,13 +18,12 @@
     \item \texttt{bindings.c}: a C file that provides facilitates low-level operations that interact with the OS through C functions, such as for threads, which is then compiled to LLVM bytecode.
   \end{itemize}
 	\subsection{The Scanner}
-    The scanner is simply a text scanner that parses text into various tokens, to then be interpreted by the parser. The regular expressions used by the scanner are listed in the language reference chapter.
-
+    The scanner is simply a text scanner that parses text into various tokens, to then be interpreted by the parser. It is at this stage that irrelevant details (whitespace and comments) are discarded and some incorrect programs (untokenizable) are caught. The regular expressions used by the scanner are listed in the language reference chapter.
 	\subsection{The Parser}
-    The parser is a token scanner that converts the tokens read into a valid abstract syntax tree of the program. If the program follows valid syntax, it will be parsed accordingly. Otherwise, compilation of code will yield a parse error. The structure of the program is as follows:
+    The parser is a token scanner that converts the tokens read into a valid abstract syntax tree of to better represent the structure of the program. Here it discards irrelevant information, such as parenthesis and punctuation. If the program follows valid syntax, it will be parsed accordingly. Otherwise, compilation of code will yield a parse error. 
 
 	\subsection{The Semantic Analyzer}
-	The semantic analyzer checks the consistency and correctness of user programs. For example, it will check whether variables are defined within a scope, whether types of expressions match their uses in definitions and function calls, and whether structs are used correctly (a large modification we made was semantic checking for circular struct definitions).  
+	The semantic analyzer checks the correctness of user programs. It establishes that a prgram is well typed by building a symbol table and checking for consistency. For example, it will check whether variables are defined within a scope, whether we are dereferencing from a pointer, whether types of expressions match their uses in definitions and function calls, and whether structs are used correctly (a large modification we made was semantic checking for circular struct definitions).
 
 	\subsection{The Code Generator}
-	The code generator then takes in a definition of a program and builds the equivalent LLVM IR. 
+	The code generator then takes in a definition of a program and builds the equivalent LLVM IR. It is in the code generator that we specify instructions regarding allocating memory and storing information, as well as accessing and manipulating said information. After the IR is generated, LLVM can optimize the code for specific platforms.

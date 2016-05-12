@@ -1,19 +1,15 @@
 \chapter{Introduction}
 
-Democritus is a programming language with a static type system and native support for concurrent programming via its \texttt{atomic} keyword, with facilities for both imperative and functional programming. Democritus is compiled to the LLVM (Low Level Virtual Machine) intermediate form, which can then be optimized to machine-specific assembly code. Democritus' syntax draws inspiration from contemporary languages, aspiring to emulate Go and Python in terms of focusing on use cases familiar to the modern software engineer, emphasizing readability, and having ``one -- and preferably only one -- obvious way to do it"\footnote[1]{http://c2.com/cgi/wiki?PythonPhilosophy}.
+Democritus is a programming language with a static type system and native support for concurrent programming, with facilities for both imperative and functional programming. Democritus is compiled to the LLVM (Low Level Virtual Machine) intermediate form, which can then be optimized to machine-specific assembly code. Democritus' syntax draws inspiration from contemporary languages, aspiring to emulate Go and Python in terms of focusing on use cases familiar to the modern software engineer, emphasizing readability, and having ``one -- and preferably only one -- obvious way to do it"\footnote[1]{http://c2.com/cgi/wiki?PythonPhilosophy}.
 
 
-\section{Motivation}
+\section{Motivation and Product Goals}
 
-The main motivation behind Democritus was to create a lower level imperative language that supported concurrency `out-of-the-box'. The race condition arising from threading would be solved by the language's \texttt{atomic} keyword, which provides a native locking system for variables and data. Users would then be able to write and run simple multi-threaded applications relatively quickly. 
-
-\section{Product Goals}
-
-	\subsection{Native Concurrency and Atomicity}
-		Users should be able to easily and quickly thread their program with minimal worry about race conditions. Their development process should not be hindered by the use of multithreading, nor should they have to define special threading classes as is common in some other languages.
+	\subsection{Native Concurrency}
+		Users should be able to easily and quickly thread their program. Their development process should not be hindered by the use of multithreading, nor should they have to define special threading classes as is common in some other languages.
 
 	\subsection{Portability}
 		Developed under the LLVM IR, code written in Democritus can be compiled and run on any machine that LLVM can run on. As an industrial-level compiler, LLVM offers robustness and portability as the compiler back-end of Democritus. 
 
 	\subsection{Flexibility}
-		Though Democritus is not an object-oriented language, it seeks to grant users flexibility in functionality, supporting structures, standard primitive data types, and native string support.
+		Though Democritus is not an object-oriented language, it seeks to grant users flexibility in functionality, supporting structures, standard primitive data types, native string support, and pointers for precise memory control. 
