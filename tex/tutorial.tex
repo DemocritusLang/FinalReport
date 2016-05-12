@@ -162,7 +162,6 @@ function main() int{
 		\medskip \noindent
 		References can only be called on addressable fields (such as variables, or struct fields). Dereferences can only be called on pointer types.
 
-\section{Pointers}
 
 \section{Control Flow}
 	As an imperative language, Democritus executes statements sequentially from the top of any given function to the bottom. Branching and iteration is done similarly to many other imperative languages.
@@ -272,6 +271,25 @@ function main() int{
 
 	\subsection{Malloc}
 		\texttt{malloc(size)} may be called, returning a pointer to a newly heap-allocated block of $size$ bytes. These pointers may be bound to strings, which themselves are pointers to string literals. An example utilizing malloc will be included with file I/O.
+
+	\subsection{Pointers}
+
+		Democritus features a pointer type, a numerical value which points to an address in memory. 
+
+		\medskip\noindent A pointer type is defined \verb|<* type>|, and as such they can be declared as follows: \verb| let a *int;|	
+		
+		\smallskip\noindent
+		Dereferencing is performed with \texttt{*} (e.g. \verb|*a|), and may only be performed on pointer types. Referencing, which returns the memory address of a variable or addressable location in memory, is performed with \verb|&a|.
+
+		\medskip\noindent
+		Since malloc returns a \texttt{*void} type, it must be casted in order to be used or accessed as another type. To cast an a \texttt{malloc}'d pointer:
+		\begin{lstlisting}
+let i *int;
+i = cast malloc(num_bytes) to *int;
+		\end{lstlisting}
+
+		\noindent
+		With pointers and heap-allocated memory from \texttt{malloc()}, we are able to build up basic data structures. 
 
 	\subsection{File I/O}
 		Files may be opened with \texttt{open()}. This call returns an integer, which may be then bound as a file descriptor. C functions such as \texttt{write()}, \texttt{read()}, or \texttt{lseek()} may then be called on the file descriptor. 
