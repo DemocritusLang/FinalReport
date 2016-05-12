@@ -1,0 +1,129 @@
+\contentsline {chapter}{\numberline {1}Introduction}{4}
+\contentsline {section}{\numberline {1.1}Motivation}{4}
+\contentsline {section}{\numberline {1.2}Product Goals}{4}
+\contentsline {subsection}{Native Concurrency and Atomicity}{4}
+\contentsline {subsection}{Portability}{4}
+\contentsline {subsection}{Flexibility}{4}
+\contentsline {chapter}{\numberline {2}Language Tutorial}{5}
+\contentsline {section}{\numberline {2.1}Setup and Installation}{5}
+\contentsline {section}{\numberline {2.2}Compiling Your Code}{5}
+\contentsline {section}{\numberline {2.3}Writing Code}{6}
+\contentsline {section}{\numberline {2.4}Getting Started}{6}
+\contentsline {subsection}{Declarations}{6}
+\contentsline {subsection}{Types}{6}
+\contentsline {subsubsection}{Primitives}{6}
+\contentsline {subsubsection}{Strings}{6}
+\contentsline {subsubsection}{Structs}{7}
+\contentsline {subsection}{Operators}{7}
+\contentsline {subsubsection}{Binary Operators:}{7}
+\contentsline {subsubsection}{Unary Operators:}{7}
+\contentsline {section}{\numberline {2.5}Control Flow}{8}
+\contentsline {subsection}{Conditional Branching}{8}
+\contentsline {subsection}{Loops and Iteration}{8}
+\contentsline {section}{\numberline {2.6}Multithreading and Atomicity}{9}
+\contentsline {section}{\numberline {2.7}Miscellaneous}{9}
+\contentsline {subsection}{Malloc}{9}
+\contentsline {subsection}{Pointers}{9}
+\contentsline {subsection}{File I/O}{10}
+\contentsline {subsection}{Sockets API}{10}
+\contentsline {chapter}{\numberline {3}Language Reference Manual}{12}
+\contentsline {section}{\numberline {3.1}Introduction}{12}
+\contentsline {section}{\numberline {3.2}Structure of a Democritus Program}{12}
+\contentsline {section}{\numberline {3.3}Data types}{14}
+\contentsline {subsection}{Primitive Types}{14}
+\contentsline {subsubsection}{int}{14}
+\contentsline {subsubsection}{float}{14}
+\contentsline {subsubsection}{boolean}{14}
+\contentsline {subsubsection}{pointer}{14}
+\contentsline {subsection}{Complex Types}{14}
+\contentsline {subsubsection}{string}{14}
+\contentsline {subsubsection}{struct}{14}
+\contentsline {section}{\numberline {3.4}Lexical Conventions}{15}
+\contentsline {subsection}{Identifiers}{15}
+\contentsline {subsection}{Reserved Keywords}{15}
+\contentsline {subsection}{Literals}{15}
+\contentsline {subsubsection}{Integer Literals}{15}
+\contentsline {subsubsection}{Boolean Literals}{15}
+\contentsline {subsubsection}{String Literals}{15}
+\contentsline {subsection}{All Democritus Tokens}{16}
+\contentsline {subsection}{Punctuation}{17}
+\contentsline {subsubsection}{Semicolon}{17}
+\contentsline {subsubsection}{Curly Brackets}{17}
+\contentsline {subsubsection}{Parentheses}{17}
+\contentsline {subsection}{Comments}{17}
+\contentsline {section}{\numberline {3.5}Variable Declarations}{17}
+\contentsline {subsection}{Variable Declaration}{17}
+\contentsline {subsection}{Struct Declaration}{18}
+\contentsline {section}{\numberline {3.6}Expressions and Operators}{18}
+\contentsline {subsection}{Expressions}{18}
+\contentsline {subsubsection}{Literal}{18}
+\contentsline {subsubsection}{Identifier}{18}
+\contentsline {subsubsection}{Binary Operation}{18}
+\contentsline {subsubsection}{Unary Operation}{18}
+\contentsline {subsubsection}{Struct Access}{18}
+\contentsline {subsubsection}{Struct Assignment}{18}
+\contentsline {subsubsection}{Function Call}{18}
+\contentsline {subsubsection}{Variable Assignment}{19}
+\contentsline {subsubsection}{Parenthisization}{19}
+\contentsline {subsection}{Binary and Unary Operations}{19}
+\contentsline {subsection}{Arithmetic Operations}{20}
+\contentsline {subsubsection}{Addition and Subtraction}{20}
+\contentsline {subsubsection}{Multiplication and Division}{20}
+\contentsline {subsubsection}{Modulo}{20}
+\contentsline {subsection}{Boolean Expressions}{20}
+\contentsline {subsubsection}{Equality}{20}
+\contentsline {subsubsection}{Negation}{20}
+\contentsline {subsubsection}{Comparison}{20}
+\contentsline {subsubsection}{Chained Expressions}{20}
+\contentsline {subsection}{Parentheses}{20}
+\contentsline {subsection}{Function Calls}{21}
+\contentsline {subsection}{Pointers and References}{21}
+\contentsline {subsection}{Operator Precedence and Associativity}{21}
+\contentsline {section}{\numberline {3.7}Statements}{21}
+\contentsline {subsection}{Expressions}{22}
+\contentsline {subsection}{Return Statements}{22}
+\contentsline {subsection}{Nested Blocks}{22}
+\contentsline {subsection}{Conditional Statements}{22}
+\contentsline {subsection}{Conditional Loops}{22}
+\contentsline {section}{\numberline {3.8}Functions}{23}
+\contentsline {subsection}{Overview and Grammar}{23}
+\contentsline {subsection}{Calling and Recursion}{23}
+\contentsline {section}{\numberline {3.9}Concurrency}{24}
+\contentsline {subsection}{Overview}{24}
+\contentsline {subsection}{Spawning Threads}{24}
+\contentsline {chapter}{\numberline {4}Project Plan}{25}
+\contentsline {section}{\numberline {4.1}Planning}{25}
+\contentsline {section}{\numberline {4.2}Workflow}{25}
+\contentsline {section}{\numberline {4.3}Team Member Responsibilities}{26}
+\contentsline {section}{\numberline {4.4}Git Logs}{27}
+\contentsline {subsection}{master branch}{27}
+\contentsline {subsection}{threads-2 branch}{37}
+\contentsline {subsection}{nested-structs branch}{42}
+\contentsline {subsection}{linkedlist-and-stack branch}{48}
+\contentsline {subsection}{fix-malloc branch}{59}
+\contentsline {subsection}{build-malloc-attempt branch}{67}
+\contentsline {subsection}{Final Report}{77}
+\contentsline {chapter}{\numberline {5}Architecture Overview}{79}
+\contentsline {section}{\numberline {5.1}Compiler Overview}{80}
+\contentsline {subsection}{The Scanner}{80}
+\contentsline {subsection}{The Parser}{80}
+\contentsline {subsection}{The Semantic Analyzer}{80}
+\contentsline {subsection}{The Code Generator}{80}
+\contentsline {chapter}{\numberline {6}Testing}{81}
+\contentsline {section}{\numberline {6.1}Integration Testing}{81}
+\contentsline {subsection}{Development and Testing Process}{81}
+\contentsline {subsection}{Aside: Unit Testing}{82}
+\contentsline {section}{\numberline {6.2}The Test Suite and Automated Regression Testing}{82}
+\contentsline {chapter}{\numberline {7}Lessons Learned}{83}
+\contentsline {section}{\numberline {7.1}Amy}{83}
+\contentsline {section}{\numberline {7.2}Emily}{83}
+\contentsline {section}{\numberline {7.3}Amarto}{83}
+\contentsline {section}{\numberline {7.4}Kyle}{83}
+\contentsline {chapter}{\numberline {8}Code Listing}{84}
+\contentsline {section}{\numberline {8.1}democritus.ml}{84}
+\contentsline {section}{\numberline {8.2}scanner.mll}{84}
+\contentsline {section}{\numberline {8.3}parser.mly}{86}
+\contentsline {section}{\numberline {8.4}semant.ml}{88}
+\contentsline {section}{\numberline {8.5}ast.ml}{94}
+\contentsline {section}{\numberline {8.6}codegen.ml}{97}
+\contentsline {section}{\numberline {8.7}bindings.c}{106}

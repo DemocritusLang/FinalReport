@@ -1,0 +1,1982 @@
+\chapter{Tests and Output}
+\begin{lstlisting}
+\subsection{fail-assign1.dem}
+\begin{lstlisting}
+function main() int
+{
+  let i int;
+  let b bool;
+
+  i = 42;
+  i = 10;
+  b = true;
+  b = false;
+  i = false; /* Fail: assigning a to bool an integer */
+}
+\end{lstlisting}
+\subsection{fail-assign1.err}
+\begin{lstlisting}
+Fatal error: exception Failure("illegal assignment int = bool in i = false")
+\end{lstlisting}
+\subsection{fail-assign2.dem}
+\begin{lstlisting}
+function main() int
+{
+  let i int;
+  let b bool;
+
+  b = 48; /* Fail: assigning an integer to a bool */
+}
+\end{lstlisting}
+\subsection{fail-assign2.err}
+\begin{lstlisting}
+Fatal error: exception Failure("illegal assignment bool = int in b = 48")
+\end{lstlisting}
+\subsection{fail-assign3.dem}
+\begin{lstlisting}
+function myvoid() void
+{
+  return;
+}
+
+function main() int
+{
+  let i int;
+
+  i = myvoid(); /* Fail: assigning a to void an integer */
+}
+\end{lstlisting}
+\subsection{fail-assign3.err}
+\begin{lstlisting}
+Fatal error: exception Failure("illegal assignment int = void in i = myvoid()")
+\end{lstlisting}
+\subsection{fail-dead1.dem}
+\begin{lstlisting}
+function main() int
+{
+  let i int;
+
+  i = 15;
+  return i;
+  i = 32; /* Error: code after a return */
+}
+\end{lstlisting}
+\subsection{fail-dead1.err}
+\begin{lstlisting}
+Fatal error: exception Failure("nothing may follow a return")
+\end{lstlisting}
+\subsection{fail-dead2.dem}
+\begin{lstlisting}
+function main() int
+{
+  let i int;
+
+  {
+    i = 15;
+    return i;
+  }
+  i = 32; /* Error: code after a return */
+}
+\end{lstlisting}
+\subsection{fail-dead2.err}
+\begin{lstlisting}
+Fatal error: exception Failure("nothing may follow a return")
+\end{lstlisting}
+\subsection{fail-expr1.dem}
+\begin{lstlisting}
+let a int;
+let b bool;
+
+function foo(c int, d bool) void
+{
+  let dd int;
+  let e bool;
+  a + c;
+  c - a;
+  a * 3;
+  c / 2;
+  d + a; /* Error: bool + int */
+}
+
+function main() int
+{
+  return 0;
+}
+\end{lstlisting}
+\subsection{fail-expr1.err}
+\begin{lstlisting}
+Fatal error: exception Failure("illegal binary operator bool + int in d + a")
+\end{lstlisting}
+\subsection{fail-expr2.dem}
+\begin{lstlisting}
+let a int;
+let b bool;
+
+function foo(c int, d bool) void
+{
+  let d int;
+  let e bool;
+  b + a; /* Error: bool + int */
+}
+
+function main() int
+{
+  return 0;
+}
+\end{lstlisting}
+\subsection{fail-expr2.err}
+\begin{lstlisting}
+Fatal error: exception Failure("illegal binary operator bool + int in b + a")
+\end{lstlisting}
+\subsection{fail-for1.dem}
+\begin{lstlisting}
+function main() int
+{
+  let i int;
+  for ( ; true ; ) {} /* OK: Forever */
+
+  for (i = 0 ; i < 10 ; i = i + 1) {
+    if (i == 3) return 42;
+  }
+
+  for (j = 0; i < 10 ; i = i + 1) {} /* j undefined */
+
+  return 0;
+}
+\end{lstlisting}
+\subsection{fail-for1.err}
+\begin{lstlisting}
+Fatal error: exception Failure("undeclared identifier j")
+\end{lstlisting}
+\subsection{fail-for2.dem}
+\begin{lstlisting}
+function main() int
+{
+  let i int;
+
+  for (i = 0; j < 10 ; i = i + 1) {} /* j undefined */
+
+  return 0;
+}
+\end{lstlisting}
+\subsection{fail-for2.err}
+\begin{lstlisting}
+Fatal error: exception Failure("undeclared identifier j")
+\end{lstlisting}
+\subsection{fail-for3.dem}
+\begin{lstlisting}
+function main() int
+{
+  let i int;
+
+  for (i = 0; i ; i = i + 1) {} /* i is an integer, not Boolean */
+
+  return 0;
+}
+\end{lstlisting}
+\subsection{fail-for3.err}
+\begin{lstlisting}
+Fatal error: exception Failure("expected Boolean expression in i")
+\end{lstlisting}
+\subsection{fail-for4.dem}
+\begin{lstlisting}
+function main() int
+{
+  let i int;
+
+  for (i = 0; i < 10 ; i = j + 1) {} /* j undefined */
+
+  return 0;
+}
+\end{lstlisting}
+\subsection{fail-for4.err}
+\begin{lstlisting}
+Fatal error: exception Failure("undeclared identifier j")
+\end{lstlisting}
+\subsection{fail-for5.dem}
+\begin{lstlisting}
+function main() int
+{
+  let i int;
+
+  for (i = 0; i < 10 ; i = i + 1) {
+    foo(); /* Error: no function foo */
+  }
+
+  return 0;
+}
+\end{lstlisting}
+\subsection{fail-for5.err}
+\begin{lstlisting}
+Fatal error: exception Failure("unrecognized function foo")
+\end{lstlisting}
+\subsection{fail-for-as-while1.dem}
+\begin{lstlisting}
+function main() int
+{
+  let i int;
+
+  for (true) {
+    i = i + 1;
+  }
+
+  for (42) { /* Should be boolean */
+    i = i + 1;
+  }
+
+}
+\end{lstlisting}
+\subsection{fail-for-as-while1.err}
+\begin{lstlisting}
+Fatal error: exception Failure("expected Boolean expression in 42")
+\end{lstlisting}
+\subsection{fail-for-as-while2.dem}
+\begin{lstlisting}
+function main() int
+{
+  let i int;
+
+  for (true) {
+    i = i + 1;
+  }
+
+  for (true) {
+    foo(); /* foo undefined */
+  }
+
+}
+\end{lstlisting}
+\subsection{fail-for-as-while2.err}
+\begin{lstlisting}
+Fatal error: exception Failure("unrecognized function foo")
+\end{lstlisting}
+\subsection{fail-func1.dem}
+\begin{lstlisting}
+function foo() int {}
+
+function bar() int {}
+
+function baz() int {}
+
+function bar() void {} /* Error: duplicate function bar */
+
+function main() int
+{
+  return 0;
+}
+\end{lstlisting}
+\subsection{fail-func1.err}
+\begin{lstlisting}
+Fatal error: exception Failure("duplicate function bar")
+\end{lstlisting}
+\subsection{fail-func2.dem}
+\begin{lstlisting}
+function foo(a int, b bool, c int) int { }
+
+function bar(a int, b bool, a int) void {} /* Error: duplicate formal a in bar */
+
+function main() int
+{
+  return 0;
+}
+\end{lstlisting}
+\subsection{fail-func2.err}
+\begin{lstlisting}
+Fatal error: exception Failure("duplicate formal a in bar")
+\end{lstlisting}
+\subsection{fail-func3.dem}
+\begin{lstlisting}
+function foo(a int, b bool, c int) int { }
+
+function bar(a int, b void, c int) void {} /* Error: illegal formal void b */
+
+function main() int
+{
+  return 0;
+}
+\end{lstlisting}
+\subsection{fail-func3.err}
+\begin{lstlisting}
+Fatal error: exception Failure("illegal void formal b in bar")
+\end{lstlisting}
+\subsection{fail-func4.dem}
+\begin{lstlisting}
+function foo() int {}
+
+function bar() void {}
+
+function print() int {} /* Should not be able to define print */
+
+function baz() void {}
+
+function main() int
+{
+  return 0;
+}
+\end{lstlisting}
+\subsection{fail-func4.err}
+\begin{lstlisting}
+Fatal error: exception Failure("function print may not be defined")
+\end{lstlisting}
+\subsection{fail-func5.dem}
+\begin{lstlisting}
+function foo() int {}
+
+function bar() int {
+  let a int;
+  let b void; /* Error: illegal local void b */
+  let c bool;
+
+  return 0;
+}
+
+function main() int
+{
+  return 0;
+}
+\end{lstlisting}
+\subsection{fail-func5.err}
+\begin{lstlisting}
+Fatal error: exception Failure("illegal void local b in bar")
+\end{lstlisting}
+\subsection{fail-func6.dem}
+\begin{lstlisting}
+function foo(a int, b bool) void
+{
+}
+
+function main() int
+{
+  foo(42, true);
+  foo(42); /* Wrong number of arguments */
+}
+\end{lstlisting}
+\subsection{fail-func6.err}
+\begin{lstlisting}
+Fatal error: exception Failure("expecting 2 arguments in foo(42)")
+\end{lstlisting}
+\subsection{fail-func7.dem}
+\begin{lstlisting}
+function foo(a int, b bool) void
+{
+}
+
+function main() int
+{
+  foo(42, true);
+  foo(42, true, false); /* Wrong number of arguments */
+}
+\end{lstlisting}
+\subsection{fail-func7.err}
+\begin{lstlisting}
+Fatal error: exception Failure("expecting 2 arguments in foo(42, true, false)")
+\end{lstlisting}
+\subsection{fail-func8.dem}
+\begin{lstlisting}
+function foo(a int, b bool) void
+{
+}
+
+function bar() void
+{
+}
+
+function main() int
+{
+  foo(42, true);
+  foo(42, bar()); /* and int void, not and int bool */
+}
+\end{lstlisting}
+\subsection{fail-func8.err}
+\begin{lstlisting}
+Fatal error: exception Failure("illegal actual argument found void expected bool in bar()")
+\end{lstlisting}
+\subsection{fail-func9.dem}
+\begin{lstlisting}
+function foo(a int, b bool) void
+{
+}
+
+function main() int
+{
+  foo(42, true);
+  foo(42, 42); /* Fail: int, not bool */
+}
+\end{lstlisting}
+\subsection{fail-func9.err}
+\begin{lstlisting}
+Fatal error: exception Failure("illegal actual argument found int expected bool in 42")
+\end{lstlisting}
+\subsection{fail-global1.dem}
+\begin{lstlisting}
+let c int;
+let b bool;
+let a void; /* global variables should not be void */
+
+
+function main() int
+{
+  return 0;
+}
+\end{lstlisting}
+\subsection{fail-global1.err}
+\begin{lstlisting}
+Fatal error: exception Failure("illegal void global a")
+\end{lstlisting}
+\subsection{fail-global2.dem}
+\begin{lstlisting}
+let b int;
+let c bool;
+let a int;
+let b int; /* Duplicate global variable */
+
+function main() int
+{
+  return 0;
+}
+\end{lstlisting}
+\subsection{fail-global2.err}
+\begin{lstlisting}
+Fatal error: exception Failure("duplicate global b")
+\end{lstlisting}
+\subsection{fail-if1.dem}
+\begin{lstlisting}
+function main() int
+{
+  if (true) {}
+  if (false) {} else {}
+  if (42) {} /* Error: non-predicate bool */
+}
+\end{lstlisting}
+\subsection{fail-if1.err}
+\begin{lstlisting}
+Fatal error: exception Failure("expected Boolean expression in 42")
+\end{lstlisting}
+\subsection{fail-if2.dem}
+\begin{lstlisting}
+function main() int
+{
+  if (true) {
+    foo; /* Error: undeclared variable */
+  }
+}
+\end{lstlisting}
+\subsection{fail-if2.err}
+\begin{lstlisting}
+Fatal error: exception Failure("undeclared identifier foo")
+\end{lstlisting}
+\subsection{fail-if3.dem}
+\begin{lstlisting}
+function main() int
+{
+  if (true) {
+    42;
+  } else {
+    bar; /* Error: undeclared variable */
+  }
+}
+\end{lstlisting}
+\subsection{fail-if3.err}
+\begin{lstlisting}
+Fatal error: exception Failure("undeclared identifier bar")
+\end{lstlisting}
+\subsection{fail-nomain.dem}
+\begin{lstlisting}
+\end{lstlisting}
+\subsection{fail-nomain.err}
+\begin{lstlisting}
+Fatal error: exception Failure("unrecognized function main")
+\end{lstlisting}
+\subsection{fail-return1.dem}
+\begin{lstlisting}
+function main() int
+{
+  return true; /* Should return int */
+}
+\end{lstlisting}
+\subsection{fail-return1.err}
+\begin{lstlisting}
+Fatal error: exception Failure("return gives bool expected int in true")
+\end{lstlisting}
+\subsection{fail-return2.dem}
+\begin{lstlisting}
+function foo() void
+{
+  if (true) return 42; /* Should return void */
+  else return;
+}
+
+function main() int
+{
+  return 42;
+}
+\end{lstlisting}
+\subsection{fail-return2.err}
+\begin{lstlisting}
+Fatal error: exception Failure("return gives int expected void in 42")
+\end{lstlisting}
+\subsection{fail-struct-circular.dem}
+\begin{lstlisting}
+struct A
+{
+  let b struct B;
+}
+
+struct B
+{
+  let c struct C;
+}
+
+struct C
+{
+  let a struct A;
+}
+
+function main() int
+{
+  let b bool;
+  let x struct A;
+  print("hello world\n");
+  return 0;
+}
+\end{lstlisting}
+\subsection{fail-struct-circular.err}
+\begin{lstlisting}
+Fatal error: exception Failure("recursive struct definition")
+\end{lstlisting}
+\subsection{test-arith1.dem}
+\begin{lstlisting}
+function main() int
+{
+  print_int(39 + 3);
+  return 0;
+}
+\end{lstlisting}
+\subsection{test-arith1.out}
+\begin{lstlisting}
+42
+\end{lstlisting}
+\subsection{test-arith2.dem}
+\begin{lstlisting}
+function main() int
+{
+  print_int(1 + 2 * 3 + 4);
+  return 0;
+}
+\end{lstlisting}
+\subsection{test-arith2.out}
+\begin{lstlisting}
+11
+\end{lstlisting}
+\subsection{test-arith3.dem}
+\begin{lstlisting}
+function foo(a int) int
+{
+  return a;
+}
+
+function main() int
+{
+  let a int;
+  a = 42;
+  a = a + 5;
+  print_int(a);
+  return 0;
+}
+\end{lstlisting}
+\subsection{test-arith3.out}
+\begin{lstlisting}
+47
+\end{lstlisting}
+\subsection{test-fib.dem}
+\begin{lstlisting}
+function fib(x int) int
+{
+  if (x < 2) return 1;
+  return fib(x-1) + fib(x-2);
+}
+
+function main() int
+{
+  print_int(fib(0));
+  print_int(fib(1));
+  print_int(fib(2));
+  print_int(fib(3));
+  print_int(fib(4));
+  print_int(fib(5));
+  return 0;
+}
+\end{lstlisting}
+\subsection{test-fib.out}
+\begin{lstlisting}
+1
+1
+2
+3
+5
+8
+\end{lstlisting}
+\subsection{test-fileops.dem}
+\begin{lstlisting}
+function main() int
+{
+  let fd int;
+  let malloced string;
+  fd = open("tests/HELLOOOOOO.txt", 66, 384);
+  write(fd, "hellooo!\n", 9);
+  malloced = malloc(10);
+  lseek(fd, 0, 0);
+  read(fd, malloced, 10);
+  print(malloced);
+  free(malloced);
+  return 0;
+}
+\end{lstlisting}
+\subsection{test-fileops.out}
+\begin{lstlisting}
+hellooo!
+\end{lstlisting}
+\subsection{test-float.dem}
+\begin{lstlisting}
+function main() int
+{
+  let a float;
+  let b float;
+  let c float;
+
+  a = 10.0;
+  b = 0.5;
+
+  print_float(a + b);
+  print_float(a - b);
+  print_float(a * b);
+  print_float(a / b);  
+
+  return 0;
+}
+\end{lstlisting}
+\subsection{test-float.out}
+\begin{lstlisting}
+10.500000
+9.500000
+5.000000
+20.000000
+\end{lstlisting}
+\subsection{test-for1.dem}
+\begin{lstlisting}
+function main() int
+{
+  let i int;
+  for (i = 0 ; i < 5 ; i = i + 1) {
+    print_int(i);
+  }
+  print_int(42);
+  return 0;
+}
+\end{lstlisting}
+\subsection{test-for1.out}
+\begin{lstlisting}
+0
+1
+2
+3
+4
+42
+\end{lstlisting}
+\subsection{test-for2.dem}
+\begin{lstlisting}
+function main() int
+{
+  let i int;
+  i = 0;
+  for ( ; i < 5; ) {
+    print_int(i);
+    i = i + 1;
+  }
+  print_int(42);
+  return 0;
+}
+\end{lstlisting}
+\subsection{test-for2.out}
+\begin{lstlisting}
+0
+1
+2
+3
+4
+42
+\end{lstlisting}
+\subsection{test-for-as-while1.dem}
+\begin{lstlisting}
+function main() int
+{
+  let i int;
+  i = 5;
+  for (i > 0) {
+    print_int(i);
+    i = i - 1;
+  }
+  print_int(42);
+  return 0;
+}
+\end{lstlisting}
+\subsection{test-for-as-while1.out}
+\begin{lstlisting}
+5
+4
+3
+2
+1
+42
+\end{lstlisting}
+\subsection{test-func1.dem}
+\begin{lstlisting}
+function add(a int, b int) int
+{
+  return a + b;
+}
+
+function main() int
+{
+  let a int;
+  a = add(39, 3);
+  print_int(a);
+  return 0;
+}
+\end{lstlisting}
+\subsection{test-func1.out}
+\begin{lstlisting}
+42
+\end{lstlisting}
+\subsection{test-func2.dem}
+\begin{lstlisting}
+/* Bug noticed by Pin-Chin Huang */
+
+function fun(x int, y int) int
+{
+  return 0;
+}
+
+function main() int
+{
+  let i int;
+  i = 1;
+
+  fun(i = 2, i = i+1);
+
+  print_int(i);
+  return 0;
+}
+
+\end{lstlisting}
+\subsection{test-func2.out}
+\begin{lstlisting}
+2
+\end{lstlisting}
+\subsection{test-func3.dem}
+\begin{lstlisting}
+function print_intem(a int, b int, c int, d int) void
+{
+  print_int(a);
+  print_int(b);
+  print_int(c);
+  print_int(d);
+}
+
+function main() int
+{
+  print_intem(42,17,192,8);
+  return 0;
+}
+\end{lstlisting}
+\subsection{test-func3.out}
+\begin{lstlisting}
+42
+17
+192
+8
+\end{lstlisting}
+\subsection{test-func4.dem}
+\begin{lstlisting}
+function add(a int, b int) int
+{
+  let c int;
+  c = a + b;
+  return c;
+}
+
+function main() int
+{
+  let d int;
+  d = add(52, 10);
+  print_int(d);
+  return 0;
+}
+\end{lstlisting}
+\subsection{test-func4.out}
+\begin{lstlisting}
+62
+\end{lstlisting}
+\subsection{test-func5.dem}
+\begin{lstlisting}
+function foo(a int) int
+{
+  return a;
+}
+
+function main() int
+{
+  return 0;
+}
+\end{lstlisting}
+\subsection{test-func5.out}
+\begin{lstlisting}
+\end{lstlisting}
+\subsection{test-gcd2.dem}
+\begin{lstlisting}
+function gcd(a int, b int) int {
+  for (a != b)
+    if (a > b) a = a - b;
+    else b = b - a;
+  return a;
+}
+
+function main() int
+{
+  print_int(gcd(14,21));
+  print_int(gcd(8,36));
+  print_int(gcd(99,121));
+  return 0;
+}
+\end{lstlisting}
+\subsection{test-gcd2.out}
+\begin{lstlisting}
+7
+4
+11
+\end{lstlisting}
+\subsection{test-gcd.dem}
+\begin{lstlisting}
+function gcd(a int, b int) int {
+  for (a != b) {
+    if (a > b) a = a - b;
+    else b = b - a;
+  }
+  return a;
+}
+
+function main() int
+{
+  print_int(gcd(2,14));
+  print_int(gcd(3,15));
+  print_int(gcd(99,121));
+  return 0;
+}
+\end{lstlisting}
+\subsection{test-gcd.out}
+\begin{lstlisting}
+2
+3
+11
+\end{lstlisting}
+\subsection{test-global1.dem}
+\begin{lstlisting}
+let a int;
+let b int;
+
+function print_inta() void
+{
+  print_int(a);
+}
+
+function print_intb() void
+{
+  print_int(b);
+}
+
+function incab() void
+{
+  a = a + 1;
+  b = b + 1;
+}
+
+function main() int
+{
+  a = 42;
+  b = 21;
+  print_inta();
+  print_intb();
+  incab();
+  print_inta();
+  print_intb();
+  return 0;
+}
+\end{lstlisting}
+\subsection{test-global1.out}
+\begin{lstlisting}
+42
+21
+43
+22
+\end{lstlisting}
+\subsection{test-global2.dem}
+\begin{lstlisting}
+let i bool;
+
+function main() int
+{
+  let i int; /* Should hide the global i */
+
+  i = 42;
+  print_int(i + i);
+  return 0;
+}
+\end{lstlisting}
+\subsection{test-global2.out}
+\begin{lstlisting}
+84
+\end{lstlisting}
+\subsection{test-hello.dem}
+\begin{lstlisting}
+function main() int
+{
+  print_int(42);
+  print_int(71);
+  print_int(1);
+  return 0;
+}
+\end{lstlisting}
+\subsection{test-hello.out}
+\begin{lstlisting}
+42
+71
+1
+\end{lstlisting}
+\subsection{test-helloworld-assign.dem}
+\begin{lstlisting}
+function main() int
+{
+  let x string;
+  x = "hello world\n"; 
+  print(x);
+  return 0;
+}
+\end{lstlisting}
+\subsection{test-helloworld-assign.out}
+\begin{lstlisting}
+hello world
+\end{lstlisting}
+\subsection{test-helloworld.dem}
+\begin{lstlisting}
+function main() int
+{
+  print("hello world\n");
+  return 0;
+}
+\end{lstlisting}
+\subsection{test-helloworld.out}
+\begin{lstlisting}
+hello world
+\end{lstlisting}
+\subsection{test-if1.dem}
+\begin{lstlisting}
+function main() int
+{
+  if (true) print_int(42);
+  print_int(17);
+  return 0;
+}
+\end{lstlisting}
+\subsection{test-if1.out}
+\begin{lstlisting}
+42
+17
+\end{lstlisting}
+\subsection{test-if2.dem}
+\begin{lstlisting}
+function main() int
+{
+  if (true) print_int(42); else print_int(8);
+  print_int(17);
+  return 0;
+}
+\end{lstlisting}
+\subsection{test-if2.out}
+\begin{lstlisting}
+42
+17
+\end{lstlisting}
+\subsection{test-if3.dem}
+\begin{lstlisting}
+function main() int
+{
+  if (false) print_int(42);
+  print_int(17);
+  return 0;
+}
+\end{lstlisting}
+\subsection{test-if3.out}
+\begin{lstlisting}
+17
+\end{lstlisting}
+\subsection{test-if4.dem}
+\begin{lstlisting}
+function main() int
+{
+  if (false) print_int(42); else print_int(8);
+  print_int(17);
+  return 0;
+}
+\end{lstlisting}
+\subsection{test-if4.out}
+\begin{lstlisting}
+8
+17
+\end{lstlisting}
+\subsection{test-linkedlist-final.dem}
+\begin{lstlisting}
+struct LLNode
+{
+  let val int;
+  let next *struct LLNode;
+  let end bool;
+}
+
+function newLLNode(data int) *struct LLNode
+{
+  let a *struct LLNode;
+  a = cast malloc(13) to *struct LLNode;
+  (*a).val = data;
+  (*a).end = false;
+  return a;
+}
+
+function add_front(temp1 *struct LLNode, head *struct LLNode) *struct LLNode
+{
+    (*temp1).next = head;
+    head = temp1;
+    return head;
+}
+
+function add_tail(temp1 *struct LLNode, head *struct LLNode) *struct LLNode
+{
+    let temp *struct LLNode;
+    let struct_holder_pointer *struct LLNode;
+    let struct_holder struct LLNode;  
+    let temp1_val int;
+
+    temp1_val = (*temp1).val;
+ 
+    struct_holder_pointer = (head);
+    struct_holder = *struct_holder_pointer;   
+
+    temp = newLLNode(0);
+    (*temp).end = true;
+
+    for (!(struct_holder.end)){
+      struct_holder_pointer = struct_holder.next;
+      struct_holder = *struct_holder_pointer;
+    }
+
+    (*struct_holder_pointer).val = temp1_val;
+    (*struct_holder_pointer).end = false;
+    (*struct_holder_pointer).next = temp;
+    
+    return head;
+}
+
+
+function delete(delete_val int, head *struct LLNode) *struct LLNode
+{
+    let struct_holder_pointer *struct LLNode;
+    let struct_holder struct LLNode;
+   
+    let struct_holder_pointer_prev *struct LLNode;
+ 
+    struct_holder_pointer = (head);
+    struct_holder = *struct_holder_pointer;   
+
+    for ((struct_holder.val) != delete_val){
+      struct_holder_pointer_prev = struct_holder_pointer;
+  
+      struct_holder_pointer = struct_holder.next;
+      struct_holder = *struct_holder_pointer;
+    }
+
+    (*struct_holder_pointer_prev).next = struct_holder.next;
+    return head;
+}
+
+function print_list(struct_holder_pointer *struct LLNode) void
+{
+  let struct_holder struct LLNode;
+  struct_holder = *(struct_holder_pointer);
+ 
+  for (!(struct_holder.end)){
+    print_int(struct_holder.val);
+    struct_holder = *(struct_holder.next);
+  }
+  return;
+}
+
+function main() int
+{
+  let temp *struct LLNode;
+  let head *struct LLNode;  
+  let i int;
+
+  //init the tail node; 
+  let init struct LLNode;
+
+  init.end = true;
+  head = &init;
+
+  //add to front, 0 to 10
+  for (i = 0 ; i < 6 ; i = i + 1) { 
+     temp = newLLNode(i);
+     head = add_front(temp, head);    
+  }
+
+  print_list(head);
+  print("====\n"); 
+
+  temp = newLLNode(42);
+  head = add_tail(temp, head);
+ 
+  print_list(head);
+  print("====\n");
+
+  head = delete(2, head);
+
+  print_list(head);
+
+  return 0;
+}
+\end{lstlisting}
+\subsection{test-linkedlist-final.out}
+\begin{lstlisting}
+5
+4
+3
+2
+1
+0
+====
+5
+4
+3
+2
+1
+0
+42
+====
+5
+4
+3
+1
+0
+42
+\end{lstlisting}
+\subsection{test-linkedlist-malloc.dem}
+\begin{lstlisting}
+struct LLNode
+{
+  let val int;
+  let next *struct LLNode;
+  let end bool;
+}
+
+function add(data int) *struct LLNode{
+  let a *struct LLNode;
+  a = cast malloc(4) to *struct LLNode;
+  (*a).val = data;
+  (*a).end = false;
+  return a;
+}
+
+function print_list(struct_holder_pointer *struct LLNode) void
+{
+  let struct_holder struct LLNode;
+  struct_holder = *(struct_holder_pointer);
+ 
+  for (!(struct_holder.end)){
+    print_int(struct_holder.val);
+    struct_holder = *(struct_holder.next);
+  }
+  return;
+}
+
+function main() int
+{
+  let temp1 *struct LLNode;
+  let head *struct LLNode;  
+  let i int;
+  let struct_holder struct LLNode;
+  let print_num int;
+ 
+  let test struct LLNode;
+  test.end = true;
+  head = &test;
+
+  for (i = 0 ; i < 5 ; i = i + 1) { 
+    temp1 = add(i);
+    (*temp1).next = head;
+    head = temp1;
+  }
+
+  print_list(head);
+
+  return 0;
+}
+\end{lstlisting}
+\subsection{test-linkedlist-malloc.out}
+\begin{lstlisting}
+4
+3
+2
+1
+0
+\end{lstlisting}
+\subsection{test-linkedlist-proof.dem}
+\begin{lstlisting}
+struct LLNode
+{
+  let data struct Rectangle;
+  let next *struct LLNode;
+}
+
+struct Rectangle
+{
+  let width int;
+}
+
+function main() int
+{
+  let head *struct LLNode;
+  let node1 struct LLNode;
+  let node2 struct LLNode; 
+  let node3 struct LLNode;
+
+  let struct_holder struct LLNode;
+  let struct_pointer_holder *struct LLNode;
+  let print_num int;
+ 
+  //build up list
+  node1.data.width = 1;
+  head = &node1;  
+
+  node2.data.width = 2;
+  node2.next = head;
+  head = &node2;
+ 
+  node3.data.width = 3;
+  node3.next = head;
+  head = &node3;
+
+  //print list head to tail 
+  struct_holder = *(head);
+  print_num = struct_holder.data.width;
+  print_int(print_num);
+
+  struct_pointer_holder = struct_holder.next; 
+  struct_holder = *struct_pointer_holder;
+  print_num = struct_holder.data.width;
+  print_int(print_num);
+
+  struct_pointer_holder = struct_holder.next;
+  struct_holder = *struct_pointer_holder;
+  print_num = struct_holder.data.width;
+  print_int(print_num);
+
+
+  return 0;
+}
+\end{lstlisting}
+\subsection{test-linkedlist-proof.out}
+\begin{lstlisting}
+3
+2
+1
+\end{lstlisting}
+\subsection{test-local1.dem}
+\begin{lstlisting}
+function foo(i bool) void
+{
+  let i int; /* Should hide the formal i */
+
+  i = 42;
+  print_int(i + i);
+}
+
+function main() int
+{
+  foo(true);
+  return 0;
+}
+\end{lstlisting}
+\subsection{test-local1.out}
+\begin{lstlisting}
+84
+\end{lstlisting}
+\subsection{test-mod.dem}
+\begin{lstlisting}
+function main() int
+{
+  print_int(38 % 3);
+  return 0;
+}
+\end{lstlisting}
+\subsection{test-mod.out}
+\begin{lstlisting}
+2
+\end{lstlisting}
+\subsection{test-ops1.dem}
+\begin{lstlisting}
+function main() int
+{
+  print_int(1 + 2);
+  print_int(1 - 2);
+  print_int(1 * 2);
+  print_int(100 / 2);
+  print_int(99);
+  printb(1 == 2);
+  printb(1 == 1);
+  print_int(99);
+  printb(1 != 2);
+  printb(1 != 1);
+  print_int(99);
+  printb(1 < 2);
+  printb(2 < 1);
+  print_int(99);
+  printb(1 <= 2);
+  printb(1 <= 1);
+  printb(2 <= 1);
+  print_int(99);
+  printb(1 > 2);
+  printb(2 > 1);
+  print_int(99);
+  printb(1 >= 2);
+  printb(1 >= 1);
+  printb(2 >= 1); 
+  return 0;
+}
+\end{lstlisting}
+\subsection{test-ops1.out}
+\begin{lstlisting}
+3
+-1
+2
+50
+99
+0
+1
+99
+1
+0
+99
+1
+0
+99
+1
+1
+0
+99
+0
+1
+99
+0
+1
+1
+\end{lstlisting}
+\subsection{test-ops2.dem}
+\begin{lstlisting}
+function main() int
+{
+  printb(true);
+  printb(false);
+  printb(true && true);
+  printb(true && false);
+  printb(false && true);
+  printb(false && false);
+  printb(true || true);
+  printb(true || false);
+  printb(false || true);
+  printb(false || false);
+  printb(!false);
+  printb(!true);
+  print_int(-10);
+  print_int(--42);
+}
+\end{lstlisting}
+\subsection{test-ops2.out}
+\begin{lstlisting}
+1
+0
+1
+0
+0
+0
+1
+1
+1
+0
+1
+0
+-10
+42
+\end{lstlisting}
+\subsection{test-pointer-bool.dem}
+\begin{lstlisting}
+function main() int
+{
+  let a bool;
+  let b *bool;
+  let c bool;
+
+  a = true;
+  b = &a;
+
+  printb(a);
+ 
+  c = *b;
+  printb(c);
+
+  a = !a;
+ 
+  c = *b;
+  printb(c);
+ 
+  return 0;
+}
+\end{lstlisting}
+\subsection{test-pointer-bool.out}
+\begin{lstlisting}
+1
+1
+0
+\end{lstlisting}
+\subsection{test-pointer-int.dem}
+\begin{lstlisting}
+function main() int
+{
+  let a int;
+  let b *int;
+  let c int;
+
+  a = 1;
+  b = &a;
+
+  print_int(a);
+ 
+  c = *b;
+  print_int(c);
+
+  a = a + 1;
+ 
+  c = *b;
+  print_int(c);
+ 
+  return 0;
+}
+\end{lstlisting}
+\subsection{test-pointer-int.out}
+\begin{lstlisting}
+1
+1
+2
+\end{lstlisting}
+\subsection{test-pointer-malloc.dem}
+\begin{lstlisting}
+function getpointer() *int{
+  let a *int;
+  a = cast malloc(4) to *int;
+  *a = 42;
+  return a;
+}
+
+function main() int
+{
+ 
+  let a *int;
+  let b int; 
+  a = getpointer();
+  b = *a; 
+  print_int(b);
+ 
+  return 0;
+}
+\end{lstlisting}
+\subsection{test-pointer-malloc.out}
+\begin{lstlisting}
+42
+\end{lstlisting}
+\subsection{test-pointer-struct-onelvl.dem}
+\begin{lstlisting}
+struct Rectangle
+{
+  let width int;
+  let height int;
+}
+
+function main() int
+{
+  let a struct Rectangle;
+  let b *struct Rectangle;
+  let c struct Rectangle;
+  let d int;
+
+  a.width = 10;
+  b = &a;
+  c = *b;
+
+  d = c.width;
+  print_int(d);
+
+  return 0;
+}
+\end{lstlisting}
+\subsection{test-pointer-struct-onelvl.out}
+\begin{lstlisting}
+10
+\end{lstlisting}
+\subsection{test-pointer-struct-twolvl.dem}
+\begin{lstlisting}
+struct Rectangle
+{
+  let width int;
+  let height int;
+  let color struct Color;
+}
+
+struct Color
+{
+  let red bool;
+}
+
+function main() int
+{
+  let a struct Rectangle;
+  let b *struct Rectangle;
+  let c struct Rectangle;
+  let d bool;
+
+  a.color.red = true;
+  b = &a;
+  c = *b;
+
+  d = c.color.red;
+  printb(d);
+
+  c.color.red = false;
+  b = &c;
+  a = *b;
+  
+  d = a.color.red;
+  printb(d);
+
+  return 0;
+}
+\end{lstlisting}
+\subsection{test-pointer-struct-twolvl.out}
+\begin{lstlisting}
+1
+0
+\end{lstlisting}
+\subsection{test-sleep.dem}
+\begin{lstlisting}
+function main() int
+{
+    print("hello...\n");
+    sleep(1);
+    print("goodbye...\n");
+    return 0;
+}
+\end{lstlisting}
+\subsection{test-sleep.out}
+\begin{lstlisting}
+hello...
+goodbye...
+\end{lstlisting}
+\subsection{test-sockets.dem}
+\begin{lstlisting}
+function main() int
+{
+    let fd int;
+    let malloced string;
+    request_from_server("www.xkcd.com/index.html");
+    exec_prog("/bin/cat", "cat", "tests/index.html");
+    return 0;
+//    fd = open("tests/index.html", 66, 384);
+//    malloced = malloc(9000);
+//    read(fd, malloced, 9000);
+//    print(malloced);
+    
+}
+\end{lstlisting}
+\subsection{test-sockets.out}
+\begin{lstlisting}
+ga('create', 'UA-25700708-7', 'auto');
+ga('send', 'pageview');
+</script>
+<script type="text/javascript" src="//xkcd.com/1350/jquery.min.js"></script>
+<script type="text/javascript" src="//xkcd.com/static/json2.js"></script>
+
+</head>
+<body>
+<div id="topContainer">
+<div id="topLeft">
+<ul>
+<li><a href="/archive">Archive</a></li>
+<li><a href="http://what-if.xkcd.com">What If?</a></li>
+<li><a href="http://blag.xkcd.com">Blag</a></li>
+<li><a href="http://store.xkcd.com/">Store</a></li>
+<li><a rel="author" href="/about">About</a></li>
+</ul>
+</div>
+<div id="topRight">
+<div id="masthead">
+<span><a href="/"><img src="//imgs.xkcd.com/static/terrible_small_logo.png" alt="xkcd.com logo" height="83" width="185"/></a></span>
+<span id="slogan">A webcomic of romance,<br/> sarcasm, math, and language.</span>
+</div>
+<div id="news">
+(Previously: <a href="http://xkcd.com/1288/">Substitutions</a> and <a href="http://xkcd.com/1625/">Substitutions 2</a>)<br />Note: There are various <a href="https://chrome.google.com/webstore/detail/replacerator/gaajhenbcclienfnniphiiambbbninnp?hl=en">browser extensions</a> for this.
+</div>
+</div>
+<div id="bgLeft" class="bg box"></div>
+<div id="bgRight" class="bg box"></div>
+</div>
+<div id="middleContainer" class="box">
+
+<div id="ctitle">Substitutions 3</div>
+<ul class="comicNav">
+<li><a href="/1/">|&lt;</a></li>
+<li><a rel="prev" href="/1678/" accesskey="p">&lt; Prev</a></li>
+<li><a href="//c.xkcd.com/random/comic/">Random</a></li>
+<li><a rel="next" href="#" accesskey="n">Next &gt;</a></li>
+<li><a href="/">&gt;|</a></li>
+</ul>
+<div id="comic">
+<img src="//imgs.xkcd.com/comics/substitutions_3.png" title="BREAKING: Channing Tatum and his friends explore haunted city" alt="Substitutions 3" />
+</div>
+<ul class="comicNav">
+<li><a href="/1/">|&lt;</a></li>
+<li><a rel="prev" href="/1678/" accesskey="p">&lt; Prev</a></li>
+<li><a href="//c.xkcd.com/random/comic/">Random</a></li>
+<li><a rel="next" href="#" accesskey="n">Next &gt;</a></li>
+<li><a href="/">&gt;|</a></li>
+</ul>
+<br />
+Permanent link to this comic: http://xkcd.com/1679/<br />
+Image URL (for hotlinking/embedding): http://imgs.xkcd.com/comics/substitutions_3.png
+<div id="transcript" style="display: none"></div>
+</div>
+<div id="bottom" class="box">
+<img src="//imgs.xkcd.com/s/a899e84.jpg" width="520" height="100" alt="Selected Comics" usemap="#comicmap"/>
+<map id="comicmap" name="comicmap">
+<area shape="rect" coords="0,0,100,100" href="/150/" alt="Grownups"/>
+<area shape="rect" coords="104,0,204,100" href="/730/" alt="Circuit Diagram"/>
+<area shape="rect" coords="208,0,308,100" href="/162/" alt="Angular Momentum"/>
+<area shape="rect" coords="312,0,412,100" href="/688/" alt="Self-Description"/>
+<area shape="rect" coords="416,0,520,100" href="/556/" alt="Alternative Energy Revolution"/>
+</map>
+<div>
+<!--
+Search comic titles and transcripts:
+<script type="text/javascript" src="//www.google.com/jsapi"></script>
+<script type="text/javascript">google.load('search', '1');google.setOnLoadCallback(function() {google.search.CustomSearchControl.attachAutoCompletion('012652707207066138651:zudjtuwe28q',document.getElementById('q'),'cse-search-box');});</script>
+<form action="//www.google.com/cse" id="cse-search-box">
+<div>
+<input type="hidden" name="cx" value="012652707207066138651:zudjtuwe28q"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" id="q" size="31"/>
+<input type="submit" name="sa" value="Search"/>
+</div>
+</form>
+<script type="text/javascript" src="//www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+-->
+<a href="/rss.xml">RSS Feed</a> - <a href="/atom.xml">Atom Feed</a>
+</div>
+<br />
+<div id="comicLinks">
+Comics I enjoy:<br/>
+        <a href="http://threewordphrase.com/">Three Word Phrase</a>,
+        <a href="http://www.smbc-comics.com/">SMBC</a>,
+        <a href="http://www.qwantz.com">Dinosaur Comics</a>,
+        <a href="http://oglaf.com/">Oglaf</a> (nsfw),
+        <a href="http://www.asofterworld.com">A Softer World</a>,
+        <a href="http://buttersafe.com/">Buttersafe</a>,
+        <a href="http://pbfcomics.com/">Perry Bible Fellowship</a>,
+        <a href="http://questionablecontent.net/">Questionable Content</a>,
+        <a href="http://www.buttercupfestival.com/">Buttercup Festival</a>,
+        <a href="http://www.mspaintadventures.com/?s=6&p=001901">Homestuck</a>,
+	<a href="http://www.jspowerhour.com/">Junior Scientist Power Hour</a>
+</div>
+<p>Warning: this comic occasionally contains strong language (which may be unsuitable for children), unusual humor (which may be unsuitable for adults), and advanced mathematics (which may be unsuitable for liberal-arts majors).</p>
+<div id="footnote">BTC 1FhCLQK2ZXtCUQDtG98p6fVH7S6mxAsEey<br />We did not invent the algorithm. The algorithm consistently finds Jesus. The algorithm killed Jeeves. <br/>The algorithm is banned in China. The algorithm is from Jersey. The algorithm constantly finds Jesus.<br/>This is not the algorithm. This is close.</div>
+<div id="licenseText">
+<p>
+This work is licensed under a
+<a href="http://creativecommons.org/licenses/by-nc/2.5/">Creative Commons Attribution-NonCommercial 2.5 License</a>.
+</p><p>
+This means you're free to copy and share these comics (but not to sell them). <a rel="license" href="/license.html">More details</a>.</p>
+</div>
+</div>
+</body>
+<!-- Layout by Ian Clasbey, davean, and chromakode -->
+</html>
+
+\end{lstlisting}
+\subsection{test-struct1.dem}
+\begin{lstlisting}
+struct Rectangle
+{
+  let width int;
+  let height int;
+}
+
+struct Circle
+{
+  let radius int;
+  let r struct Rectangle;
+}
+
+function main() int
+{
+  let b bool;
+  let x struct Circle; 
+  print("hello world\n");
+  return 0;
+}
+\end{lstlisting}
+\subsection{test-struct1.out}
+\begin{lstlisting}
+hello world
+\end{lstlisting}
+\subsection{test-struct.dem}
+\begin{lstlisting}
+struct Rectangle
+{
+  let width int;
+  let height int;
+}
+
+struct Circle
+{
+  let radius int;
+}
+
+function main() int
+{
+  let b bool;
+  let y int;
+  let x struct Circle;
+  x.radius=4;
+  y = x.radius + 6; 
+  print_int(y);
+  print("hello world\n");
+  return 0;
+}
+\end{lstlisting}
+\subsection{test-struct-float.dem}
+\begin{lstlisting}
+struct Rectangle
+{
+  let width float;
+  let height float;
+}
+
+struct Circle
+{
+  let radius float;
+  let rectangle struct Rectangle;
+}
+
+function main() int
+{
+  let r struct Rectangle;
+  let c struct Circle;
+
+  r.width = 0.5;
+  c.rectangle.width = r.width;
+
+  print_float(c.rectangle.width);
+
+  return 0;
+}
+\end{lstlisting}
+\subsection{test-struct-float.out}
+\begin{lstlisting}
+0.500000
+\end{lstlisting}
+\subsection{test-struct.out}
+\begin{lstlisting}
+10
+hello world
+\end{lstlisting}
+\subsection{test-structs-nested1.dem}
+\begin{lstlisting}
+struct Circle
+{
+	let radius int;
+	let extra_struct struct TestStruct;
+}
+
+struct TestStruct
+{
+	let number int;	
+	let color struct Color;
+}
+
+struct Color
+{
+	let color_number int;
+}	
+
+function main() int
+{
+	let a int;
+	let b int;
+	
+	let circle struct Circle;
+	
+
+	circle.extra_struct.number = 10;
+	circle.extra_struct.color.color_number = circle.extra_struct.number;
+
+	a = circle.extra_struct.color.color_number;
+	b = circle.extra_struct.number;
+
+	print_int(a);
+	print_int(b);
+}
+
+\end{lstlisting}
+\subsection{test-structs-nested1.out}
+\begin{lstlisting}
+10
+10
+\end{lstlisting}
+\subsection{test-structs-nested.dem}
+\begin{lstlisting}
+struct Circle
+{
+	let radius int;
+	let extra_struct struct TestStruct;
+}
+
+struct TestStruct
+{
+	let number int;	
+	let color struct Color;
+}
+
+struct Color
+{
+	let color_number int;
+}	
+
+function main() int
+{
+	let a int;
+	let b int;
+ 	let c int;
+  	let d int;
+	
+	let circle struct Circle;
+	let test_struct struct TestStruct;
+	let test_color struct Color;
+
+	test_color.color_number = 696969;
+	
+	test_struct.number = 100000;
+	test_struct.color = test_color;
+
+	circle.extra_struct = test_struct;
+
+	circle.extra_struct.color.color_number = 69;
+	circle.extra_struct.number = 10;
+
+	a = test_struct.color.color_number;
+	b = circle.extra_struct.color.color_number;
+	c = test_struct.number;
+	d = circle.extra_struct.number;
+
+	print_int(a);
+	print_int(b);
+	print_int(c);
+	print_int(d);
+}
+
+\end{lstlisting}
+\subsection{test-structs-nested.out}
+\begin{lstlisting}
+696969
+69
+100000
+10
+\end{lstlisting}
+\subsection{test-threading1.dem}
+\begin{lstlisting}
+function sayhello(noop *void) *void
+{
+    let x *void;
+    print("hello!\n");
+    return x;
+}
+
+
+function main() int
+{
+    thread("sayhello", "", 5);
+    return 0;
+}
+\end{lstlisting}
+\subsection{test-threading1.out}
+\begin{lstlisting}
+hello!
+hello!
+hello!
+hello!
+hello!
+\end{lstlisting}
+\subsection{test-threading2.dem}
+\begin{lstlisting}
+function sayhello(str string) *void
+{
+    let x *void;
+    print(str);
+    return x;
+}
+
+
+function main() int
+{
+    thread("sayhello", "hello!\n", 5);
+    return 0;
+}
+\end{lstlisting}
+\subsection{test-threading2.out}
+\begin{lstlisting}
+hello!
+hello!
+hello!
+hello!
+hello!
+\end{lstlisting}
+\subsection{test-var1.dem}
+\begin{lstlisting}
+function main() int
+{
+  let a int;
+  a = 42;
+  print_int(a);
+  return 0;
+}
+\end{lstlisting}
+\subsection{test-var1.out}
+\begin{lstlisting}
+42
+\end{lstlisting}
+
+
+\end{lstlisting}
